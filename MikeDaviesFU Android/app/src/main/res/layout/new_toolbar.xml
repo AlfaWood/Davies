@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    >
+    <LinearLayout
+        android:background="@color/header_bg"
+        android:layout_height="@dimen/_70sdp"
+        android:layout_width="match_parent"
+        android:orientation="horizontal"
+        >
+
+        <LinearLayout
+            android:layout_height="wrap_content"
+            android:layout_width="wrap_content"
+            android:orientation="vertical"
+            android:layout_gravity="center"
+            android:id="@+id/imv_profileLayout"
+            android:layout_marginLeft="@dimen/_10sdp"
+            android:layout_marginRight="@dimen/_5sdp"
+
+            >
+            <!-- <ImageView
+                 android:layout_width="@dimen/_50sdp"
+                 android:layout_height="@dimen/_52sdp"
+                 android:src="@drawable/profile"
+                 android:id="@+id/imv_profile"
+                 android:padding="@dimen/_5sdp"
+                 />-->
+            <ImageView
+                android:layout_width="@dimen/_60sdp"
+                android:layout_height="@dimen/_60sdp"
+                android:src="@drawable/newlogo"
+                android:id="@+id/imv_profile"
+                />
+
+        </LinearLayout>
+        <LinearLayout
+            android:layout_height="wrap_content"
+            android:layout_width="wrap_content"
+            android:orientation="vertical"
+            android:layout_gravity="center"
+            android:layout_marginLeft="@dimen/_25sdp"
+            >
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/new_alpha_name"
+                android:padding="@dimen/_5sdp"
+                android:textSize="@dimen/_25ssp"
+                android:textColor="@color/white"
+
+                />
+        </LinearLayout>
+    </LinearLayout>
+</LinearLayout>

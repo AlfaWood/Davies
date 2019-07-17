@@ -1,0 +1,134 @@
+<resources>
+    <string name="app_name">Mike Davies </string>
+    <string name="alpha_name">Mike Davies Fitness Factory</string>
+    <string name="uname">Username</string>
+    <string name="pwd">Password</string>
+    <string name="forgotpwd">forgot password?</string>
+    <string name="login">Login</string>
+    <string name="new_user">Are you a new user?</string>
+    <string name="signup">Sign Up</string>
+    <string name="input_uname">Please enter user name.</string>
+    <string name="input_pwd">Please enter password.</string>
+    <string name="min_pwd">Password can have minimum 6 and maximum 20 characters.</string>
+    <string name="error_login">User Email Address/Password is not recognized. Try again or sign up.</string>
+    <!--Profile layout-->
+    <string name="first_name">First Name</string>
+    <string name="last_name">Last Name</string>
+
+    <string name="email">Email Address</string>
+    <string name="reemail">Confirm Email Address</string>
+    <string name="update_password">(Update Password?)</string>
+    <string name="bill_info">Billing Information</string>
+
+    <string name="member_date">Member Since </string>
+    <string name="billing_info">Billing Information</string>
+    <string name="change_card">Change Card</string>
+    <string name="cardno">Card:</string>
+    <string name="edit">Edit</string>
+    <string name="account_profile">User Profile</string>
+    <string name="account_info">Account Information</string>
+    <string name="confirm_pwd">Re-Enter Password</string>
+    <string name="proceed">Proceed</string>
+    <string name="input_fname">Please enter first name.</string>
+    <string name="input_lname">Please enter last name.</string>
+    <string name="input_email">Please enter email address.</string>
+    <string name="input_reemail">Please enter confirm email address.</string>
+    <string name="input_cnf_pwd">Please re-enter password.</string>
+    <string name="pwd_not_match">Your password and re-enter password do not match.</string>
+    <string name="email_not_match">Your email and confirm email do not match.</string>
+    <!--feed_item_list_layout-->
+    <string name="read_more">Read More</string>
+
+    <string name="headline">Headline or Title of the story</string>
+    <string name="valid_email">Invalid email address.</string>
+    <string name="valid_cnf_email">Please enter valid confirm email address.</string>
+    <string name="ok">Ok</string>
+    <string name="alert">Alert</string>
+    <string name="noInternet">Internet connection not available.</string>
+    <string name="reg_comp">Registration completed successfully. You can login now.</string>
+    <string name="email_hint">Enter Email Address</string>
+    <string name="pwd_hint">Enter Password</string>
+    <string name="duplicate_email">This email id is already registered.</string>
+    <string name="acc_cred">Account Credentials</string>
+    <string name="user_info">User Information</string>
+    <string name="use_acc">Use these account credentials when you log in</string>
+    <string name="use_info">Your Username will appear in any question you ask</string>
+    <string name="first_name_hint">Enter First Name</string>
+    <string name="last_name_hint">Enter Last Name</string>
+    <string name="uname_hint">Enter Username</string>
+    <string name="pwd_valid">Password must be at least 6 characters.</string>
+
+    <string name="feed">Feed</string>
+    <string name="resources">Resources</string>
+    <string name="qa">Q &amp; A</string>
+    <string name="messages">Inbox</string>
+    <string name="uname_valid">Username can have minimum 6 and maximum 20 characters. Special characters are not allowed.</string>
+    <string name="like">Likes</string>
+    <string name="comment">Comments</string>
+    <string name="cmt">Comment</string>
+    <string name="close">Close</string>
+    <string name="something">Something went wrong. Please try again later.</string>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+
+    <string name="noneed">No feeds found. Pull to refresh</string>
+    <string name="noresource">No resources found. Pull to refresh</string>
+    <string name="error">Error</string>
+    <string name="timeout">Time out error</string>
+    <string name="type_search">Type Here to Search</string>
+    <string name="updatepwd">Update Password</string>
+    <string name="changepwd">Change Password</string>
+    <string name="changepwd1">(Change Password?)</string>
+    <string name="old_pwd">Old Password</string>
+    <string name="new_pwd">New Password</string>
+    <string name="old_pwd_hint">Enter Old Password</string>
+    <string name="new_pwd_hint">Enter New Password</string>
+    <string name="input_old_pwd">Please enter old password.</string>
+    <string name="input_new_pwd">Please enter new password.</string>
+    <string name="invalid_card">Invalid card detail</string>
+    <string name="alias">Alias</string>
+    <string name="submit">Submit</string>
+    <string name="user_profile">User Profile</string>
+    <string name="choose_plan">Subscription Plan</string>
+    <string name="subscribe">Subscribe</string>
+    <string name="enter_cc">Card Details</string>
+    <string name="input_cc">Enter Card Details</string>
+    <string name="use_cc">This card detail will be used for payment of your subscription plan.</string>
+    <string name="delete">Delete</string>
+    <string name="view_card">View Card</string>
+    <string name="card">Card:</string>
+    <string name="exp">Exp:</string>
+    <string name="areYouSuredelete">Are you sure you want to delete this card?</string>
+    <string name="areYouSureCancelMember">Are you sure you want to cancel your membership?</string>
+    <string name="yes">Yes</string>
+    <string name="no">No</string>
+    <string name="no_msg">No more messages!</string>
+    <string name="no_feeds">No more feeds!</string>
+    <string name="comment_hint">Add a comment here</string>
+    <string name="input_comment">Please enter your comment.</string>
+    <string name="cancelMembership">Cancel Membership</string>
+    <!-- qa typequestion fragment-->
+
+    <string name="username">"   "Username</string>
+    <string name="anonymous">"   "Anonymous</string>
+    <string name="submitted_by">Submitted by:</string>
+    <string name="submit_your_question">Submit Your Question</string>
+    <string name="submit_a_question">Submit A Question</string>
+    <string name="submit_question">Submit a Question</string>
+    <string name="type_question">Type Question Here:</string>
+    <string name="input_que">Please enter your question.</string>
+    <string name="no_qa">No Q &amp; A found.</string>
+    <string name="send_qna">Send in your questions and many of the answers will be posted below</string>
+    <string name="no_delete">You must add another payment method first.</string>
+    <string name="ask_changecard">Do you want to change card? Please add a new card to replace with the existing card.</string>
+
+    <!--  <string name="answer"><![CDATA[<b><font color=#bf2c2c>A:</font></b>]]></string>-->
+
+
+    <string name="new_alpha_name">Dave Palumbo</string>
+    <string name="decline_accept">Press Accept to continue or Decline to Exit</string>
+    <string name="decline">Decline</string>
+    <string name="accept">Accept</string>
+    <string name="alpha_comment">Mike Davies Fitness Factory commented on this</string>
+
+</resources>

@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    >
+
+    <!--<LinearLayout-->
+        <!--android:layout_height="wrap_content"-->
+        <!--android:layout_width="match_parent"-->
+        <!--android:orientation="horizontal"-->
+        <!--android:background="@color/white"-->
+        <!--android:id="@+id/head"-->
+
+        <!--&gt;-->
+
+    <!--<LinearLayout-->
+        <!--android:layout_height="wrap_content"-->
+        <!--android:layout_width="wrap_content"-->
+        <!--android:orientation="vertical"-->
+        <!--android:layout_gravity="center"-->
+        <!--android:id="@+id/backLayout"-->
+        <!--android:layout_marginLeft="@dimen/_5sdp"-->
+
+
+        <!--&gt;-->
+        <!--<LinearLayout-->
+            <!--android:layout_height="wrap_content"-->
+            <!--android:layout_width="wrap_content"-->
+            <!--android:orientation="horizontal"-->
+            <!--&gt;-->
+
+            <!--<ImageView-->
+                <!--android:layout_width="@dimen/_35sdp"-->
+                <!--android:layout_height="@dimen/_30sdp"-->
+                <!--android:src="?attr/homeAsUpIndicator"-->
+                <!--android:id="@+id/imv_profile"-->
+                <!--android:padding="@dimen/_2sdp"-->
+                <!--android:tint="@color/dark_gray"-->
+
+                <!--/>-->
+
+            <!--<TextView-->
+                <!--android:id="@+id/tv_back"-->
+                <!--android:layout_width="match_parent"-->
+                <!--android:layout_height="wrap_content"-->
+                <!--android:text="Back"-->
+                <!--android:gravity="center"-->
+                <!--android:layout_gravity="center"-->
+                <!--android:textColor="#ABABAB"-->
+                <!--android:textSize="@dimen/_14ssp"-->
+                <!--android:visibility="gone"-->
+
+                <!--/>-->
+        <!--</LinearLayout>-->
+
+    <!--</LinearLayout>-->
+    <!--<RelativeLayout-->
+        <!--android:layout_width="match_parent"-->
+        <!--android:layout_height="wrap_content"-->
+        <!--android:background="@color/white"-->
+
+        <!--&gt;-->
+        <!--<TextView-->
+            <!--android:layout_width="wrap_content"-->
+            <!--android:layout_height="wrap_content"-->
+            <!--android:layout_centerHorizontal="true"-->
+            <!--android:layout_centerVertical="true"-->
+            <!--android:text="@string/alpha_name"-->
+            <!--style="@style/login_header_tx"-->
+            <!--android:textSize="@dimen/_35ssp"-->
+            <!--android:padding="@dimen/_10sdp"-->
+            <!--android:textColor="@color/header_bg"-->
+            <!--/>-->
+    <!--</RelativeLayout>-->
+    <!--</LinearLayout>-->
+    <include layout="@layout/back_toolbar"
+        android:id="@+id/head"/>
+
+    <android.support.design.widget.CoordinatorLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@+id/head"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        >
+
+
+        <FrameLayout
+            android:id="@+id/fragment_container"
+            android:layout_height="match_parent"
+            android:layout_width="match_parent"
+            android:layout_alignParentStart="true"
+            android:forceHasOverlappingRendering="true"
+            android:layout_alignParentLeft="true"
+
+            />
+
+        <!--<fragment-->
+            <!--android:id="@+id/fragment1"-->
+            <!--android:nadpeha.app.fragment.UserInformation"-->
+            <!--android:layout_width="match_parent"-->
+            <!--android:layout_height="match_parent"-->
+            <!--android:layout_weight="1"-->
+            <!--tools:layout="@layout/fragment_account_credential" />-->
+
+    </android.support.design.widget.CoordinatorLayout>
+
+
+</RelativeLayout>

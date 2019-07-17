@@ -1,0 +1,53 @@
+{
+	"status": "success",
+	"code": "10",
+	"message": "feeds",
+
+	"result":[{
+	
+	"title" : "Headline or Title of the story",
+	"dateAndTime" : "Date And Time",
+	"socialPlatformName" : "Facebook",
+	"storyData" : "This is a story that was published by the author and has some outstanding merit to make the ",
+	"numberOfLikes" : "53",
+	"numberOfComments" : "99",
+	"asset" : {
+		"type" : "img",
+		"url" : "",
+		"thumbnail_url" :""
+	}
+},
+
+{
+
+	"title" : "Headline or Title of the story",
+	"dateAndTime" : "Date And Time",
+	"socialPlatformName" : "Youtube",
+	"storyData" : "This is a story that was published by the author and has some outstanding merit to make the ",
+	"numberOfLikes" : "53",
+	"numberOfComments" : "99",
+	"asset" : {
+		"type" : "img",
+		"url" : "",
+		"thumbnail_url" :""
+	}
+},
+
+{
+
+	"title" : "Headline or Title of the story",
+	"dateAndTime" : "Date And Time",
+	"socialPlatformName" : "Twitter",
+	"storyData" : "This is a story that was published by the author and has some outstanding merit to make the ",
+	"numberOfLikes" : "53",
+	"numberOfComments" : "99",
+	"asset" : {
+		"type" : "img",
+		"url" : "",
+		"thumbnail_url" :""
+	}
+}
+
+
+]
+}

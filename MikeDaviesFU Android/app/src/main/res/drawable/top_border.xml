@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<inset xmlns:android="http://schemas.android.com/apk/res/android"
+    android:insetLeft="-2dp"
+    android:insetBottom="-2dp"
+    android:insetRight="-2dp">
+
+    <shape android:shape="rectangle">
+        <stroke android:width="2dp" android:color="@color/light_gray" />
+        />
+
+        <gradient
+
+            android:startColor="#F5F5F5"
+
+            android:endColor="#F5F5F5"
+
+            android:type="linear"
+
+            android:angle="270"/>
+    </shape>
+
+</inset>

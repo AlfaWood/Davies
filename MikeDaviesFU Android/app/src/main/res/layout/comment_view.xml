@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    >
+
+
+    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+
+        android:orientation="vertical"
+        android:id="@+id/comment_layout"
+
+        >
+
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+
+            android:background="@color/header_bg"
+
+
+            >
+
+            <TextView
+                android:id="@+id/tv_heading"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_alignParentTop="true"
+                android:textSize="@dimen/_13ssp"
+                android:textColor="@color/white"
+                android:text="@string/cmt"
+              android:gravity="center"
+                android:textStyle="bold"
+                android:padding="@dimen/_8sdp"
+                />
+
+
+
+        </LinearLayout>
+
+
+
+        <ScrollView
+          android:layout_width="match_parent"
+          android:layout_height="wrap_content"
+          >
+
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:layout_margin="@dimen/_5sdp"
+            >
+
+            <TextView
+                android:id="@+id/tv_comment"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_alignParentTop="true"
+                android:textSize="@dimen/_12ssp"
+                android:textColor="@color/greyshades"
+                android:text="There is a new shcsdc dcvsvc d bhkjhk jhkj jhjhk jhjk jhjh jhjhk jhkjkjhkj jhkjvs cds erif in town and you are him."
+                />
+        </LinearLayout>
+
+
+
+</ScrollView>
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/_5sdp"
+            android:layout_gravity="center"
+            android:orientation="vertical"
+            android:layout_marginBottom="@dimen/_5sdp"
+
+
+            >
+
+
+
+            <TextView
+                android:id="@+id/tv_close"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:text="@string/ok"
+                android:textSize="@dimen/_12ssp"
+                android:padding="@dimen/_8sdp"
+                android:textAllCaps="false"
+                style="@style/red_bg_button"
+                />
+
+
+
+
+        </LinearLayout>
+
+
+    </LinearLayout>
+
+
+
+</RelativeLayout>

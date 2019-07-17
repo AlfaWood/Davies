@@ -1,0 +1,70 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    >
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    tools:context=".activity.Home"
+    android:orientation="vertical"
+    android:visibility="visible"
+    android:id="@+id/homeLayout"
+    >
+
+    <include layout="@layout/toolbar"
+        android:id="@+id/main_toolbar"/>
+
+    <android.support.v4.view.ViewPager
+        android:id="@+id/viewpager"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:background="@color/white"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior"
+        />
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@color/light_gray" />
+    <android.support.design.widget.BottomNavigationView
+        android:id="@+id/navigation"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        app:menu="@menu/bottom_navigation_bar"
+        android:background="@color/tab_bg"
+        app:itemIconTint="@drawable/bottom_navigation_item_icon"
+        app:itemTextColor="@drawable/bottom_navigation_item_icon"
+        app:itemBackground="@drawable/tab_color_select"
+
+        >
+
+
+    </android.support.design.widget.BottomNavigationView>
+
+</LinearLayout>
+    <FrameLayout
+        android:id="@+id/fragment_container"
+        android:layout_height="match_parent"
+        android:layout_width="match_parent"
+        android:layout_alignParentStart="true"
+        android:forceHasOverlappingRendering="true"
+        android:layout_alignParentLeft="true"
+
+        />
+   <!-- <LinearLayout
+        xmlns:tools="http://schemas.android.com/tools"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        android:orientation="vertical"
+        android:background="@drawable/splash"
+        android:id="@+id/loadingLayout"
+        android:visibility="gone"
+        >
+    </LinearLayout>-->
+</RelativeLayout>
