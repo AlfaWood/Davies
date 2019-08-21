@@ -74,8 +74,8 @@ let NOTIF_DICT = "notifDict"
 let APP_NAME = "Mike Davies Fitness Factory"
 let ALPHA_NAME = "alpha_comment"
 let cardDeleteMessage = "Card Deleted Successfully"
-let HEX_COLOUR = "FAA71B"
-let tabTintColor = UIColor.init(red: 250/255.0, green: 167/255.0, blue: 27/255.0, alpha: 1.0)
+let HEX_COLOUR = "003087"
+let tabTintColor = UIColor.init(red: 0/255.0, green: 48/255.0, blue: 135/255.0, alpha: 1.0)
 let navTintColor = UIColor.white
 
 //BASE URL

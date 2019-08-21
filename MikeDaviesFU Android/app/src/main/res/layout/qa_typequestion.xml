@@ -57,7 +57,7 @@
                         android:layout_gravity="center"
                         android:layout_marginLeft="@dimen/_15sdp"
                         android:text="@string/submit_a_question"
-                        android:textColor="@color/black"
+                        android:textColor="@color/white"
                         android:textSize="@dimen/_14ssp"
                         android:textStyle="bold" />
 

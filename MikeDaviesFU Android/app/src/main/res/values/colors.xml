@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <color name="colorPrimary">#ffffff</color>
-    <color name="colorPrimaryDark">#E69B33</color>
-    <color name="colorAscent">#FFC87D</color>
+    <color name="colorPrimaryDark">#003087</color>
+    <color name="colorAscent">#003087</color>
     <color name="red">#ce4c47</color>
     <color name="white">#ffffff</color>
     <!--<color name="header_bg">#ce4b46</color>-->
-    <color name="header_bg">#FAA71B</color>
+    <color name="header_bg">#003087</color>
     <color name="noti_icon_color">#bf2b2b</color>
     <color name="black">#22242a</color>
     <!--<color name="grey">#c1c3c7</color>-->
@@ -14,7 +14,7 @@
     <color name="dark_gray">#a7a7a7</color>
     <color name="back_cl">#fafafa</color>
     <color name="light_gray">#e3e3e3</color>
-    <color name="hintcolor">#FFC87D</color>
+    <color name="hintcolor">#003087</color>
     <color name="greyshade">#6f7075</color>
     <color name="greyshades">#FF55565B</color>
     <color name="light_black">#a622242a</color>
@@ -24,6 +24,6 @@
     <color name="read_more_color">#9F9F9F</color>
 
     <color name="sender_read">#4d4e50</color>
-    <color name="subject_read">#FFC87D</color>
+    <color name="subject_read">#003087</color>
     <color name="date_read">#c7c7c7</color>
 </resources>
