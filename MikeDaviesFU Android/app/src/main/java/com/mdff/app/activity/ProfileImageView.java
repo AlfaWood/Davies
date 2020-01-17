@@ -6,7 +6,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
 import android.media.ExifInterface;
-import android.support.v7.app.AppCompatActivity;
+import androidx.appcompat.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.ImageView;
@@ -57,7 +57,7 @@ public class ProfileImageView extends AppCompatActivity {
 
                 } else {
                     circularProgressBar.setVisibility(View.VISIBLE);
-                    Picasso.with(ProfileImageView.this).load(profileImage)
+                    Picasso.get().load(profileImage)
 
                             .placeholder(R.drawable.user_pic).into(iv_fullImage, new Callback() {
                         @Override
@@ -67,7 +67,7 @@ public class ProfileImageView extends AppCompatActivity {
                         }
 
                         @Override
-                        public void onError() {
+                        public void onError(Exception ex) {
                             circularProgressBar.setVisibility(View.GONE);
 
                             //   Toast.makeText(activity, "No Image Found", Toast.LENGTH_SHORT).show();

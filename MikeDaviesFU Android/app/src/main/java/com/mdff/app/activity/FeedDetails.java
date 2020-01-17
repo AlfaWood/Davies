@@ -3,20 +3,24 @@ package com.mdff.app.activity;
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.app.ProgressDialog;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Typeface;
+import android.media.AudioManager;
+import android.media.MediaPlayer;
 import android.net.Uri;
-import android.os.Handler;
-import android.support.v4.app.ActivityCompat;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
+import android.os.Handler;
+import androidx.core.app.ActivityCompat;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
 import android.view.View;
+import android.view.WindowManager;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.webkit.WebChromeClient;
@@ -30,9 +34,17 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.ScrollView;
+import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.android.volley.DefaultRetryPolicy;
+import com.android.volley.Request;
+import com.android.volley.Response;
+import com.android.volley.RetryPolicy;
+import com.android.volley.TimeoutError;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.JsonObjectRequest;
 import com.mdff.app.R;
 import com.mdff.app.adapter.CustomCommentListAdapter;
 import com.mdff.app.app_interface.VolleyCallback;
@@ -45,48 +57,75 @@ import com.mdff.app.utility.AppUtil;
 import com.mdff.app.utility.ConnectivityReceiver;
 import com.mdff.app.utility.Constant;
 import com.mdff.app.utility.NetworkUtils;
-import com.android.volley.DefaultRetryPolicy;
-import com.android.volley.Request;
-import com.android.volley.Response;
-import com.android.volley.RetryPolicy;
-import com.android.volley.TimeoutError;
-import com.android.volley.VolleyError;
-import com.android.volley.toolbox.JsonObjectRequest;
+import com.mdff.app.utility.Utilities;
 import com.squareup.picasso.Picasso;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
 import fr.castorflex.android.circularprogressbar.CircularProgressBar;
 
-public class FeedDetails extends AppCompatActivity implements VolleyCallback{
+public class FeedDetails extends AppCompatActivity implements VolleyCallback, SeekBar.OnSeekBarChangeListener {
     com.mdff.app.model.Feed data;
     RelativeLayout imv_layout;
     CircularProgressBar circularProgressBar;
-    private TextView tv_title, tv_date, tv_socialsite, tv_story, tv_likescount, tv_comment_count,tv_pipe,tv_alpha_comment;
-    ImageView imv_story,iv_play;private boolean _hasLoadedOnce= false; //  boolean field
-    private LinearLayout backLayout, like_comment_layout;private EditText commentEdit; private  LinearLayout sendLayout;
-    private RecyclerView rv_comment;private CustomCommentListAdapter customCommentListAdapter;
-    ArrayList<Comment> comments;    private int connectStatus; AlertMessage alertMessage;
-    private ImageButton iv_like;String apiName;String likeSt;LinearLayout alpha_comment_layout;
-    private WebView wv_description;String toUserMobileNo;Activity activity;AppUtil appUtil;boolean isFinish=false;
-    LinearLayout iv_likeLayout;ScrollView scrollView;
-//   for  iframe
+    private TextView tv_title, tv_date, tv_socialsite, tv_story, tv_likescount, tv_comment_count, tv_pipe, tv_alpha_comment;
+    ImageView imv_story, iv_play;
+    private boolean _hasLoadedOnce = false; //  boolean field
+    private LinearLayout backLayout, like_comment_layout;
+    private EditText commentEdit;
+    private LinearLayout sendLayout;
+    private RecyclerView rv_comment;
+    private CustomCommentListAdapter customCommentListAdapter;
+    ArrayList<Comment> comments;
+    private int connectStatus;
+    AlertMessage alertMessage;
+    private ImageButton iv_like;
+    String apiName;
+    String likeSt;
+    LinearLayout alpha_comment_layout;
+    private WebView wv_description;
+    String toUserMobileNo;
+    Activity activity;
+    AppUtil appUtil;
+    boolean isFinish = false;
+    LinearLayout iv_likeLayout;
+    ScrollView scrollView;
+    //   for  iframe
     private MyWebChromeClient mWebChromeClient = null;
     private View mCustomView;
     private RelativeLayout mContentView;
     private FrameLayout mCustomViewContainer;
     private WebChromeClient.CustomViewCallback mCustomViewCallback;
+    private ImageButton forwardbtn, backwardbtn, pausebtn, playbtn;
+    private MediaPlayer mPlayer;
+    private TextView songName, startTime, songTime;
+    private SeekBar songPrgs;
+    private static int oTime = 0, sTime = 0, eTime = 0, fTime = 5000, bTime = 5000;
+    private Handler hdlr = new Handler();
+    private ImageView imgLogo;
+    private RelativeLayout rl_audio,rl_video;
+    ProgressDialog progressDialog;
+    private int seekForwardTime = 5000; // 5000 milliseconds
+    private int seekBackwardTime = 5000; // 5000 milliseconds
+    Utilities utils;
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.fragment_feed_details);
-        activity=FeedDetails.this;
-        appUtil=new AppUtil(activity);
+        getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+        activity = FeedDetails.this;
+        mPlayer = new MediaPlayer();
+        utils = new Utilities();
+        appUtil = new AppUtil(activity);
+        rl_audio = findViewById(R.id.rl_audio);
         data = (com.mdff.app.model.Feed) getIntent().getSerializableExtra("feeddetails");
         connectStatus = ConnectivityReceiver.isConnected(activity);
         comments = new ArrayList<>();
@@ -94,12 +133,230 @@ public class FeedDetails extends AppCompatActivity implements VolleyCallback{
         if (connectStatus != NetworkUtils.TYPE_NOT_CONNECTED) {
             getCommentList();
         } else {
-
-            AlertMessage alertMessage = AlertMessage.newInstance(
-                    getString(R.string.noInternet), getString(R.string.ok), getString(R.string.alert));
+            AlertMessage alertMessage = AlertMessage.newInstance(getString(R.string.noInternet), getString(R.string.ok), getString(R.string.alert));
             alertMessage.show(getFragmentManager(), "");
         }
+
+
+
+        backwardbtn = (ImageButton) findViewById(R.id.btnBackward);
+        forwardbtn = (ImageButton) findViewById(R.id.btnForward);
+        playbtn = (ImageButton) findViewById(R.id.btnPlay);
+        pausebtn = (ImageButton) findViewById(R.id.btnPause);
+
+        startTime = (TextView) findViewById(R.id.txtStartTime);
+        songTime = (TextView) findViewById(R.id.txtSongTime);
+        songPrgs = (SeekBar) findViewById(R.id.sBar);
+        imgLogo= (ImageView) findViewById(R.id.imgLogo);
+
+        songPrgs.setOnSeekBarChangeListener(this);
+        songPrgs.setClickable(true);
+
+        pausebtn.setEnabled(false);
+
+
+        progressDialog = new ProgressDialog(this);
+        progressDialog.setMessage("Loading...");
+        progressDialog.setCancelable(false);
+
+
+
+        if (data.getAsset().get(0).getType().equals("audio")) {
+            rl_audio.setVisibility(View.VISIBLE);
+            imv_layout.setVisibility(View.GONE);
+            progressDialog.show();
+
+            String imgUri = data.getAsset().get(0).getThumbnail_url();
+            if (imgUri != null && !imgUri.equals("")) {
+                Picasso.get().load(imgUri).into(imgLogo);
+            }
+
+
+
+            String url = data.getAsset().get(0).getUrl(); // your URL here
+            mPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
+
+            try {
+                mPlayer.setDataSource(url);
+                mPlayer.prepareAsync();
+                mPlayer.setOnPreparedListener(new MediaPlayer.OnPreparedListener(){
+                    @Override
+                    public void onPrepared(MediaPlayer mp) {
+                        if (mp.equals(mPlayer)) {
+                            updateProgressBar();
+                        }
+                        if (progressDialog != null && progressDialog.isShowing())
+                            progressDialog.dismiss();
+
+                    }
+                });
+
+
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+        } else {
+            rl_audio.setVisibility(View.GONE);
+            imv_layout.setVisibility(View.VISIBLE);
+        }
+
+
+        mPlayer.setOnBufferingUpdateListener(new MediaPlayer.OnBufferingUpdateListener() {
+            @Override
+            public void onBufferingUpdate(MediaPlayer mp, int percent) {
+               /* final Toast toast = Toast.makeText(FeedDetails.this, "Buffering...", Toast.LENGTH_SHORT);
+                toast.show();*/
+                Handler handler = new Handler();
+                handler.postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                       // toast.cancel();
+                    }
+                }, 500);
+            }
+        });
+
+
+
+        playbtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mPlayer.start();
+
+                sTime = mPlayer.getCurrentPosition();
+                if (oTime == 0) {
+                    songPrgs.setMax(eTime);
+                    oTime = 1;
+                }
+
+
+
+                songPrgs.setProgress(sTime);
+
+                updateProgressBar();
+                //hdlr.postDelayed(UpdateSongTime, 100);
+                pausebtn.setEnabled(true);
+                playbtn.setEnabled(false);
+            }
+        });
+
+        pausebtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mPlayer.pause();
+                pausebtn.setEnabled(false);
+                playbtn.setEnabled(true);
+
+            }
+        });
+
+        forwardbtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                // get current song position
+                int currentPosition = mPlayer.getCurrentPosition();
+                // check if seekForward time is lesser than song duration
+                if(currentPosition + seekForwardTime <= mPlayer.getDuration()){
+                    // forward song
+                    mPlayer.seekTo(currentPosition + seekForwardTime);
+                }else{
+                    // forward to end position
+                    mPlayer.seekTo(mPlayer.getDuration());
+                }
+
+                if (!playbtn.isEnabled()) {
+                    playbtn.setEnabled(true);
+                }
+            }
+        });
+
+        backwardbtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // get current song position
+                int currentPosition = mPlayer.getCurrentPosition();
+                // check if seekBackward time is greater than 0 sec
+                if(currentPosition - seekBackwardTime >= 0){
+                    // forward song
+                    mPlayer.seekTo(currentPosition - seekBackwardTime);
+                }else{
+                    // backward to starting position
+                    mPlayer.seekTo(0);
+                }
+                if (!playbtn.isEnabled()) {
+                    playbtn.setEnabled(true);
+                }
+            }
+        });
+
+
     }
+
+
+
+    public void updateProgressBar() {
+        hdlr.postDelayed(mUpdateTimeTask, 100);
+    }
+
+    private Runnable mUpdateTimeTask = new Runnable() {
+        public void run() {
+            long totalDuration = mPlayer.getDuration();
+            long currentDuration = mPlayer.getCurrentPosition();
+            // Displaying Total Duration time
+
+            // Displaying time completed playing
+
+            // Displaying Total Duration time
+            songTime.setText(""+utils.milliSecondsToTimer(totalDuration));
+            // Displaying time completed playing
+            startTime.setText(""+utils.milliSecondsToTimer(currentDuration));
+
+            // Updating progress bar
+            int progress = (int)(utils.getProgressPercentage(currentDuration, totalDuration));
+            //Log.d("Progress", ""+progress);
+            songPrgs.setProgress(progress);
+
+            // Running this thread after 100 milliseconds
+            hdlr.postDelayed(this, 100);
+        }
+    };
+
+    @Override
+    public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+
+    }
+
+    @Override
+    public void onStartTrackingTouch(SeekBar seekBar) {
+        hdlr.removeCallbacks(mUpdateTimeTask);
+    }
+
+    @Override
+    public void onStopTrackingTouch(SeekBar seekBar) {
+        hdlr.removeCallbacks(mUpdateTimeTask);
+        int totalDuration = mPlayer.getDuration();
+        int currentPosition = utils.progressToTimer(seekBar.getProgress(), totalDuration);
+
+        // forward or backward to certain seconds
+        mPlayer.seekTo(currentPosition);
+
+        // update timer progress again
+        updateProgressBar();
+    }
+
+
+
+
+
+
+
+
+
+
+
+
     private class CustomWebViewClient extends WebViewClient {
         @Override
         public boolean shouldOverrideUrlLoading(WebView wv, String url) {
@@ -141,9 +398,7 @@ public class FeedDetails extends AppCompatActivity implements VolleyCallback{
                     return true;
                 }
 
-            }
-            catch (Exception e)
-            {
+            } catch (Exception e) {
 
             }
 
@@ -152,10 +407,11 @@ public class FeedDetails extends AppCompatActivity implements VolleyCallback{
 
 
     }
+
     private void initializeIds() {
         circularProgressBar = (CircularProgressBar) findViewById(R.id.homeloader);
         backLayout = (LinearLayout) findViewById(R.id.backLayout);
-        scrollView=(ScrollView) findViewById(R.id.scrollView);
+        scrollView = (ScrollView) findViewById(R.id.scrollView);
         tv_title = (TextView) findViewById(R.id.tv_title);
         tv_date = (TextView) findViewById(R.id.tv_date);
         tv_socialsite = (TextView) findViewById(R.id.tv_socialsite);
@@ -165,14 +421,14 @@ public class FeedDetails extends AppCompatActivity implements VolleyCallback{
         wv_description.setWebViewClient(new CustomWebViewClient());
         tv_pipe = (TextView) findViewById(R.id.tv_pipe);
         tv_alpha_comment = (TextView) findViewById(R.id.tv_alpha_comment);
-        commentEdit=(EditText) findViewById(R.id.commentEdit);
+        commentEdit = (EditText) findViewById(R.id.commentEdit);
         commentEdit.requestFocus();
 //        InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
 //        imm.showSoftInput(commentEdit, InputMethodManager.HI);
         sendLayout = (LinearLayout) findViewById(R.id.sendLayout);
-        iv_likeLayout=(LinearLayout) findViewById(R.id.iv_likeLayout);
-        iv_like=(ImageButton) findViewById(R.id.iv_like);
-        alpha_comment_layout= (LinearLayout) findViewById(R.id.alpha_comment_layout);
+        iv_likeLayout = (LinearLayout) findViewById(R.id.iv_likeLayout);
+        iv_like = (ImageButton) findViewById(R.id.iv_like);
+        alpha_comment_layout = (LinearLayout) findViewById(R.id.alpha_comment_layout);
         sendLayout.setEnabled(false);
         Typeface faceLightItalic = Typeface.createFromAsset(activity.getAssets(),
                 "fonts/HelveticaNeue-LightItalic.ttf");
@@ -210,9 +466,8 @@ public class FeedDetails extends AppCompatActivity implements VolleyCallback{
             wv_description.loadDataWithBaseURL(null, data.getStoryData_with_html(), "text/html", "utf-8", null);
 //            wv_description.loadDataWithBaseURL(null, h, "text/html", "utf-8", null);
 
+        } catch (Exception e) {
         }
-        catch(Exception e)
-        {}
         if (data.getSocialPlatformName().equals("Alpha Post")) {
             like_comment_layout.setVisibility(View.VISIBLE);
             tv_socialsite.setText(data.getTitle());
@@ -239,27 +494,23 @@ public class FeedDetails extends AppCompatActivity implements VolleyCallback{
                     iv_play.setVisibility(View.GONE);
                     imageUri = data.getAsset().get(0).getUrl();
                 }
-                Picasso.with(activity).load(imageUri)
+                Picasso.get().load(imageUri)
                         .into(imv_story);
 
             } catch (Exception e) {
                 e.printStackTrace();
             }
         }
-        if(data.getIsLike().equals("0"))
-        {
+        if (data.getIsLike().equals("0")) {
             iv_like.setBackground(getResources().getDrawable(R.drawable.dislike));
-        }
-        else{
+        } else {
             iv_like.setBackground(getResources().getDrawable(R.drawable.likes));
         }
 
-        if(data.getAlphaCommented().equals("1"))
-        {
+        if (data.getAlphaCommented().equals("1")) {
             alpha_comment_layout.setVisibility(View.VISIBLE);
             tv_alpha_comment.setText(data.getAlpha_comment());
-        }
-        else{
+        } else {
             alpha_comment_layout.setVisibility(View.GONE);
         }
 
@@ -295,7 +546,7 @@ public class FeedDetails extends AppCompatActivity implements VolleyCallback{
             @Override
             public void onClick(View view) {
                 if (connectStatus != NetworkUtils.TYPE_NOT_CONNECTED) {
-                    @SuppressLint("ResourceType") Animation blink = AnimationUtils.loadAnimation(activity.getApplicationContext(),R.animator.blink);
+                    @SuppressLint("ResourceType") Animation blink = AnimationUtils.loadAnimation(activity.getApplicationContext(), R.animator.blink);
                     sendLayout.startAnimation(blink);
                     postCommentList();
                 } else {
@@ -319,11 +570,9 @@ public class FeedDetails extends AppCompatActivity implements VolleyCallback{
             @Override
             public void onTextChanged(CharSequence cs, int arg1, int arg2, int arg3) {
                 try {
-                    if(cs.length()>0)
-                    {
+                    if (cs.length() > 0) {
                         sendLayout.setEnabled(true);
-                    }
-                    else{
+                    } else {
 //                        commentEdit.setCursorVisible(false);
                         sendLayout.setEnabled(false);
                     }
@@ -333,6 +582,7 @@ public class FeedDetails extends AppCompatActivity implements VolleyCallback{
                     e.printStackTrace();
                 }
             }
+
             @Override
             public void beforeTextChanged(CharSequence arg0, int arg1, int arg2,
                                           int arg3) {
@@ -351,13 +601,13 @@ public class FeedDetails extends AppCompatActivity implements VolleyCallback{
             @Override
             public void onClick(View v) {
                 iv_likeLayout.setEnabled(false);
-                likeSt=data.getIsLike().equals("0")?"1":"0";
-                @SuppressLint("ResourceType") Animation blink = AnimationUtils.loadAnimation(activity.getApplicationContext(),R.animator.blink);
+                likeSt = data.getIsLike().equals("0") ? "1" : "0";
+                @SuppressLint("ResourceType") Animation blink = AnimationUtils.loadAnimation(activity.getApplicationContext(), R.animator.blink);
                 iv_like.startAnimation(blink);
-                Feed f=new Feed();
+                Feed f = new Feed();
                 System.out.println(f);
-                apiName="postLikeDislike";
-                f.postLikeDislike(data.getFeed_unique_id(),data.getFeed_id(),likeSt ,(VolleyCallback) f,0,"feedDetail",iv_like,data,activity,tv_likescount,iv_likeLayout);
+                apiName = "postLikeDislike";
+                f.postLikeDislike(data.getFeed_unique_id(), data.getFeed_id(), likeSt, (VolleyCallback) f, 0, "feedDetail", iv_like, data, activity, tv_likescount, iv_likeLayout);
 
 
             }
@@ -366,7 +616,6 @@ public class FeedDetails extends AppCompatActivity implements VolleyCallback{
         });
 
     }
-
 
 
     public void getCommentList() {
@@ -415,7 +664,7 @@ public class FeedDetails extends AppCompatActivity implements VolleyCallback{
                                             rv_comment.setAdapter(customCommentListAdapter);
                                         }
                                     }
-                                }catch (Throwable e) {
+                                } catch (Throwable e) {
                                     Log.i("Excep", "error----" + e.getMessage());
                                     e.printStackTrace();
                                 }
@@ -433,19 +682,16 @@ public class FeedDetails extends AppCompatActivity implements VolleyCallback{
 
                                 Toast.makeText(activity, "Time out error", Toast.LENGTH_LONG).show();
                             }
-                        }
-                        else{
-                            if(error.networkResponse.statusCode==401)
-                            {
+                        } else {
+                            if (error.networkResponse.statusCode == 401) {
                                 if (connectStatus != NetworkUtils.TYPE_NOT_CONNECTED) {
 
-                                    apiName="getCommentList";
-                                    ApiController apiController =new ApiController(activity);
+                                    apiName = "getCommentList";
+                                    ApiController apiController = new ApiController(activity);
                                     apiController.userLogin(FeedDetails.this);
-                                }
-                                else{
-                                    AlertMessage    alertMessage = AlertMessage.newInstance(
-                                            getString(R.string.noInternet), getString(R.string.ok),getString(R.string.alert));
+                                } else {
+                                    AlertMessage alertMessage = AlertMessage.newInstance(
+                                            getString(R.string.noInternet), getString(R.string.ok), getString(R.string.alert));
                                     alertMessage.show(activity.getFragmentManager(), "");
                                 }
                             }
@@ -527,7 +773,7 @@ public class FeedDetails extends AppCompatActivity implements VolleyCallback{
                                         data.setNumberOfComments(jsonParam.getString("comment_count"));
                                         tv_comment_count.setText(data.getNumberOfComments());
 //                                        comments.add(comment);
-                                        comments.add(0,comment);
+                                        comments.add(0, comment);
                                         customCommentListAdapter.addAll(comments);
                                         rv_comment.setAdapter(customCommentListAdapter);
                                         new Handler().post(new Runnable() {
@@ -541,14 +787,13 @@ public class FeedDetails extends AppCompatActivity implements VolleyCallback{
                                         sendLayout.clearAnimation();
                                         appUtil.hideSoftKeyboard(activity);
 
-                                    }
-                                    else{
+                                    } else {
                                         alertMessage = AlertMessage.newInstance(
-                                                message, getString(R.string.ok),status);
+                                                message, getString(R.string.ok), status);
                                         alertMessage.show(activity.getFragmentManager(), "");
                                     }
 
-                                }catch (Throwable e) {
+                                } catch (Throwable e) {
                                     Log.i("Excep", "error----" + e.getMessage());
                                     e.printStackTrace();
                                 }
@@ -566,18 +811,15 @@ public class FeedDetails extends AppCompatActivity implements VolleyCallback{
 
                                 Toast.makeText(activity, "Time out error", Toast.LENGTH_LONG).show();
                             }
-                        }
-                        else{
-                            if(error.networkResponse.statusCode==401)
-                            {
+                        } else {
+                            if (error.networkResponse.statusCode == 401) {
                                 if (connectStatus != NetworkUtils.TYPE_NOT_CONNECTED) {
-                                    apiName="postCommentList";
-                                    ApiController apiController =new ApiController(activity);
+                                    apiName = "postCommentList";
+                                    ApiController apiController = new ApiController(activity);
                                     apiController.userLogin(FeedDetails.this);
-                                }
-                                else{
-                                    AlertMessage    alertMessage = AlertMessage.newInstance(
-                                            getString(R.string.noInternet), getString(R.string.ok),getString(R.string.alert));
+                                } else {
+                                    AlertMessage alertMessage = AlertMessage.newInstance(
+                                            getString(R.string.noInternet), getString(R.string.ok), getString(R.string.alert));
                                     alertMessage.show(activity.getFragmentManager(), "");
                                 }
                             }
@@ -622,47 +864,38 @@ public class FeedDetails extends AppCompatActivity implements VolleyCallback{
     }
 
 
-
-
     @Override
     public void onSuccessResponse(String code, String message, String status) {
 
-        if(code.equals("10")) {
+        if (code.equals("10")) {
             if (connectStatus != NetworkUtils.TYPE_NOT_CONNECTED) {
 
-                if(apiName.equals("getCommentList"))
-                {
-                    apiName="";
+                if (apiName.equals("getCommentList")) {
+                    apiName = "";
                     getCommentList();
-                }
-                else if(apiName.equals("postCommentList"))
-                {
-                    apiName="";
+                } else if (apiName.equals("postCommentList")) {
+                    apiName = "";
                     postCommentList();
-                }
-                else if(apiName.equals("getCommentList"))
-                {
-                    apiName="";
-                    Feed f=new Feed();
+                } else if (apiName.equals("getCommentList")) {
+                    apiName = "";
+                    Feed f = new Feed();
                     System.out.println(f);
-                    apiName="postLikeDislike";
-                    f.postLikeDislike(data.getFeed_unique_id(),data.getFeed_id(),likeSt ,(VolleyCallback) f,0,"feedDetail",iv_like,data,activity,tv_likescount,iv_likeLayout);
+                    apiName = "postLikeDislike";
+                    f.postLikeDislike(data.getFeed_unique_id(), data.getFeed_id(), likeSt, (VolleyCallback) f, 0, "feedDetail", iv_like, data, activity, tv_likescount, iv_likeLayout);
                 }
 
 
-            }
-            else{
+            } else {
 
                 AlertMessage alertMessage = AlertMessage.newInstance(
-                        getString(R.string.noInternet), getString(R.string.ok),getString(R.string.alert));
+                        getString(R.string.noInternet), getString(R.string.ok), getString(R.string.alert));
                 alertMessage.show(activity.getFragmentManager(), "");
             }
-        }
-        else{
+        } else {
 
-            isFinish=true;
+            isFinish = true;
             alertMessage = AlertMessage.newInstance(
-                    message, getString(R.string.ok),status);
+                    message, getString(R.string.ok), status);
             alertMessage.show(activity.getFragmentManager(), "");
 
         }
@@ -670,29 +903,27 @@ public class FeedDetails extends AppCompatActivity implements VolleyCallback{
     }
 
     //    phone call method
-    public void phoneCall(String toUserMobileNo)
-    {
+    public void phoneCall(String toUserMobileNo) {
         try {
             if (ActivityCompat.checkSelfPermission(activity, Manifest.permission.CALL_PHONE) != PackageManager.PERMISSION_GRANTED) {
                 // TODO: Consider calling
                 ActivityCompat.requestPermissions(activity, new String[]{Manifest.permission.CALL_PHONE}, 11);
 
-            }
-            else {
+            } else {
                 Intent callIntent = new Intent(Intent.ACTION_CALL);
 //            callIntent.setData(Uri.parse("tel:" + "9336515501"));//change the number
                 callIntent.setData(Uri.parse("tel:" + toUserMobileNo));
                 startActivity(callIntent);
             }
+        } catch (Exception e) {
         }
-        catch(Exception e){}
     }
 
     // grant permission code
     @Override
     public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
 
-        switch(requestCode) {
+        switch (requestCode) {
             case 11:
                 if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
 
@@ -720,53 +951,55 @@ public class FeedDetails extends AppCompatActivity implements VolleyCallback{
                 callback.onCustomViewHidden();
                 return;
             }
-            try{
-            mContentView = (RelativeLayout) findViewById(R.id.detail);
+            try {
+                mContentView = (RelativeLayout) findViewById(R.id.detail);
 //            mContentView.setBackgroundColor(getResources().getColor(R.color.black));
-            mContentView.setVisibility(View.GONE);
-            mCustomViewContainer = new FrameLayout(activity);
-            mCustomViewContainer.setLayoutParams(LayoutParameters);
+                mContentView.setVisibility(View.GONE);
+                mCustomViewContainer = new FrameLayout(activity);
+                mCustomViewContainer.setLayoutParams(LayoutParameters);
 //            mCustomViewContainer.setBackgroundResource(android.R.color.black);
 //                setActivityBackgroundColor(getResources().getColor(R.color.black));
 //                mCustomViewContainer.setBackgroundColor(getResources().getColor(R.color.black));
-            view.setLayoutParams(LayoutParameters);
-            mCustomViewContainer.addView(view);
-            mCustomView = view;
+                view.setLayoutParams(LayoutParameters);
+                mCustomViewContainer.addView(view);
+                mCustomView = view;
 //                mCustomView.setBackgroundColor(getResources().getColor(R.color.black));
-            mCustomViewCallback = callback;
-            mCustomViewContainer.setVisibility(View.VISIBLE);
-            setContentView(mCustomViewContainer);
+                mCustomViewCallback = callback;
+                mCustomViewContainer.setVisibility(View.VISIBLE);
+                setContentView(mCustomViewContainer);
 
+            } catch (Exception e) {
             }
-            catch (Exception e){}
         }
+
         public void setActivityBackgroundColor(int color) {
             View view = activity.getWindow().getDecorView();
             view.setBackgroundColor(color);
         }
+
         @Override
         public void onHideCustomView() {
             if (mCustomView == null) {
                 return;
             } else {
-                try{
-                // Hide the custom view.
+                try {
+                    // Hide the custom view.
 
-                mCustomView.setVisibility(View.GONE);
-                // Remove the custom view from its container.
-                mCustomViewContainer.removeView(mCustomView);
-                mCustomView = null;
+                    mCustomView.setVisibility(View.GONE);
+                    // Remove the custom view from its container.
+                    mCustomViewContainer.removeView(mCustomView);
+                    mCustomView = null;
 
-                mCustomViewContainer.setVisibility(View.GONE);
-                mCustomViewContainer=null;
-                mCustomViewCallback.onCustomViewHidden();
-                // Show the content view.
+                    mCustomViewContainer.setVisibility(View.GONE);
+                    mCustomViewContainer = null;
+                    mCustomViewCallback.onCustomViewHidden();
+                    // Show the content view.
 //                mContentView.setBackgroundColor(getResources().getColor(R.color.white));
-                mContentView.setVisibility(View.VISIBLE);
-                setContentView(mContentView);
+                    mContentView.setVisibility(View.VISIBLE);
+                    setContentView(mContentView);
 //                    setActivityBackgroundColor(getResources().getColor(R.color.white));
+                } catch (Exception e) {
                 }
-                catch (Exception e){}
             }
         }
     }
@@ -776,18 +1009,35 @@ public class FeedDetails extends AppCompatActivity implements VolleyCallback{
         if (mCustomViewContainer != null)
             try {
                 mWebChromeClient.onHideCustomView();
+            } catch (Exception e) {
             }
-            catch (Exception e){}
         else if (wv_description.canGoBack())
-            try{
-            wv_description.goBack();
+            try {
+                wv_description.goBack();
+            } catch (Exception e) {
             }
-            catch (Exception e){}
         else
-            try{
-            super.onBackPressed();
+            try {
+                super.onBackPressed();
+            } catch (Exception e) {
             }
-            catch (Exception e){}
     }
 
+
+
+
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+            try {
+                mPlayer.stop();
+                mPlayer.release();
+                hdlr.removeCallbacks(mUpdateTimeTask);
+            }
+            catch (Exception ex)
+            {
+
+            }
+    }
 }

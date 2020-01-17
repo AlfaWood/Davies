@@ -5,7 +5,9 @@ import android.app.DialogFragment;
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.graphics.Color;
-import android.support.v7.app.AppCompatActivity;
+
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.SpannableString;
@@ -25,6 +27,10 @@ import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.iid.FirebaseInstanceId;
+import com.google.firebase.iid.InstanceIdResult;
 import com.mdff.app.R;
 import com.mdff.app.controller.AlphaApplication;
 import com.mdff.app.utility.AlertMessage;
@@ -43,7 +49,7 @@ import com.android.volley.toolbox.JsonObjectRequest;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-public class Login extends AppCompatActivity implements View.OnClickListener, AlertMessage.NoticeDialogListenerWithoutView
+public class  Login extends AppCompatActivity implements View.OnClickListener, AlertMessage.NoticeDialogListenerWithoutView
 {
     private EditText unameEdit,pwdEdit;private Button loginBtn,signupBtn;private TextView forgetPwdTx,alertTx,alertTx1;private LinearLayout alertLayout;
     private Activity activity;private ProgressDialog progressDialog;private AppUtil appUtil;private AlertMessage alertMessage;private ScrollView scrollView;
@@ -530,5 +536,26 @@ public class Login extends AppCompatActivity implements View.OnClickListener, Al
         else {
             dialog.dismiss();
         }
+    }
+
+
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        FirebaseInstanceId.getInstance().getInstanceId()
+                .addOnCompleteListener(new OnCompleteListener<InstanceIdResult>() {
+                    @Override
+                    public void onComplete(@NonNull Task<InstanceIdResult> task) {
+                        if (!task.isSuccessful()) {
+                            return;
+                        }
+                        // Get new Instance ID token
+                        String token = task.getResult().getToken();
+                        Log.d("Token",">>"+token);
+                        appUtil.setPrefrence("deviceToken",token);
+
+                    }
+                });
     }
 }

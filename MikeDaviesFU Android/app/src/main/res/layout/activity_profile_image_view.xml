@@ -19,7 +19,7 @@
             layout="@layout/back_toolbar" />
 
 
-        <android.support.design.widget.CoordinatorLayout
+        <androidx.coordinatorlayout.widget.CoordinatorLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_alignParentLeft="true"
@@ -58,7 +58,7 @@
                     app:cpb_sweep_speed="1.0" />
 
             </RelativeLayout>
-        </android.support.design.widget.CoordinatorLayout>
+        </androidx.coordinatorlayout.widget.CoordinatorLayout>
     </RelativeLayout>
 
 </LinearLayout>

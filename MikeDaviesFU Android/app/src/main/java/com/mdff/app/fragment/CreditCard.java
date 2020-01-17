@@ -3,8 +3,12 @@ package com.mdff.app.fragment;
 
 import android.app.ProgressDialog;
 import android.os.Bundle;
-import android.support.annotation.Nullable;
-import android.support.v4.app.Fragment;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.fragment.app.Fragment;
+
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -12,10 +16,15 @@ import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.iid.FirebaseInstanceId;
+import com.google.firebase.iid.InstanceIdResult;
 import com.mdff.app.R;
 import com.mdff.app.activity.PaymentActivity;
 import com.mdff.app.model.SubscriptionPlan;
 import com.mdff.app.utility.AlertMessage;
+import com.mdff.app.utility.AppUtil;
 import com.mdff.app.utility.Constant;
 import com.mdff.app.utility.NetworkUtils;
 import com.stripe.android.Stripe;
@@ -33,6 +42,8 @@ public class CreditCard extends Fragment {
     private PaymentActivity paymentActivity;private View view;private AlertMessage alertMessage;
     private SubscriptionPlan selectedPlan;private TextView tv_name,tv_amount;private ProgressDialog progressDialog;
     private LinearLayout subscriptionLayout;
+    AppUtil appUtil;
+
     public CreditCard() {
         // Required empty public constructor
     }
@@ -51,6 +62,8 @@ public class CreditCard extends Fragment {
         this.view=view;
 //        Bundle bundle = this.getArguments();
         paymentActivity=((PaymentActivity) getActivity());
+         appUtil = new AppUtil(getActivity());
+
         linkUIElements();
         proceedBtn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -148,6 +161,25 @@ public class CreditCard extends Fragment {
                     }
             );
         }
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        FirebaseInstanceId.getInstance().getInstanceId()
+                .addOnCompleteListener(new OnCompleteListener<InstanceIdResult>() {
+                    @Override
+                    public void onComplete(@NonNull Task<InstanceIdResult> task) {
+                        if (!task.isSuccessful()) {
+                            return;
+                        }
+                        // Get new Instance ID token
+                        String token = task.getResult().getToken();
+                        Log.d("Token",">>"+token);
+                        appUtil.setPrefrence("deviceToken",token);
+
+                    }
+                });
     }
 
 

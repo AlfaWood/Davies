@@ -2,36 +2,46 @@ package com.mdff.app.activity;
 
 import android.Manifest;
 import android.app.Activity;
+import android.app.ProgressDialog;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Typeface;
+import android.media.AudioManager;
+import android.media.MediaPlayer;
 import android.net.Uri;
-import android.support.v4.app.ActivityCompat;
-import android.support.v7.app.AppCompatActivity;
+import android.os.Handler;
+import androidx.core.app.ActivityCompat;
+import androidx.appcompat.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
+import android.view.WindowManager;
 import android.webkit.WebChromeClient;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.FrameLayout;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
+import android.widget.SeekBar;
 import android.widget.TextView;
+
 
 import com.mdff.app.R;
 import com.mdff.app.model.ResourceItemContent;
 import com.mdff.app.utility.AppUtil;
+import com.mdff.app.utility.Utilities;
 import com.squareup.picasso.Picasso;
 import com.squareup.picasso.Transformation;
 
+import java.io.IOException;
 import java.io.Serializable;
 
 import fr.castorflex.android.circularprogressbar.CircularProgressBar;
 import jp.wasabeef.picasso.transformations.RoundedCornersTransformation;
 
-public class ResourceContentItem extends AppCompatActivity {
+public class ResourceContentItem extends AppCompatActivity implements  SeekBar.OnSeekBarChangeListener {
     ResourceItemContent resourceItemContent;
     TextView tv_title, tv_description, tv_createdDate;
     ImageView iv_story, iv_video_thumbnail, iv_play;
@@ -40,7 +50,6 @@ public class ResourceContentItem extends AppCompatActivity {
     LinearLayout backLayout;
     String toUserMobileNo;
     AppUtil appUtil;
-
     final int radius = 10;
     final int margin = 5;
     String date;
@@ -53,20 +62,163 @@ public class ResourceContentItem extends AppCompatActivity {
     private FrameLayout mCustomViewContainer;
     private WebChromeClient.CustomViewCallback mCustomViewCallback;
     Activity activity;
+    private RelativeLayout rl_audio, rl_video;
+    private ImageButton forwardbtn, backwardbtn, pausebtn, playbtn;
+    private MediaPlayer mPlayer;
+    private TextView songName, startTime, songTime;
+    private SeekBar songPrgs;
+    private static int oTime = 0, sTime = 0, eTime = 0, fTime = 5000, bTime = 5000;
+    private Handler hdlr = new Handler();
+    private ImageView imgLogo;
+    private ProgressDialog progressDialog;
+    private int seekForwardTime = 5000; // 5000 milliseconds
+    private int seekBackwardTime = 5000; // 5000 milliseconds
+    Utilities utils;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.content_item_view);
-        activity=ResourceContentItem.this;
+        getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+        activity = ResourceContentItem.this;
         Intent i = getIntent();
         resourceItemContent = (ResourceItemContent) i.getSerializableExtra("resourcesubList");
         appUtil = new AppUtil(activity);
+        mPlayer = new MediaPlayer();
+        utils = new Utilities();
         // initialzefindViewIds
         initializeIds();
         appUtil.hideSoftKeyboard(activity);
+
+
+        backwardbtn = (ImageButton) findViewById(R.id.btnBackward);
+        forwardbtn = (ImageButton) findViewById(R.id.btnForward);
+        playbtn = (ImageButton) findViewById(R.id.btnPlay);
+        pausebtn = (ImageButton) findViewById(R.id.btnPause);
+        startTime = (TextView) findViewById(R.id.txtStartTime);
+        songTime = (TextView) findViewById(R.id.txtSongTime);
+
+        songPrgs = (SeekBar) findViewById(R.id.sBar);
+        songPrgs.setOnSeekBarChangeListener(this);
+        songPrgs.setClickable(true);
+
+        pausebtn.setEnabled(false);
+
+
+        playbtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mPlayer.start();
+                sTime = mPlayer.getCurrentPosition();
+                if (oTime == 0) {
+                    songPrgs.setMax(eTime);
+                    oTime = 1;
+                }
+
+                songPrgs.setProgress(sTime);
+                updateProgressBar();
+                pausebtn.setEnabled(true);
+                playbtn.setEnabled(false);
+            }
+        });
+
+        pausebtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mPlayer.pause();
+                pausebtn.setEnabled(false);
+                playbtn.setEnabled(true);
+
+            }
+        });
+
+        forwardbtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                // get current song position
+                int currentPosition = mPlayer.getCurrentPosition();
+                // check if seekForward time is lesser than song duration
+                if(currentPosition + seekForwardTime <= mPlayer.getDuration()){
+                    // forward song
+                    mPlayer.seekTo(currentPosition + seekForwardTime);
+                }else{
+                    // forward to end position
+                    mPlayer.seekTo(mPlayer.getDuration());
+                }
+
+                if (!playbtn.isEnabled()) {
+                    playbtn.setEnabled(true);
+                }
+            }
+        });
+
+        backwardbtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // get current song position
+                int currentPosition = mPlayer.getCurrentPosition();
+                // check if seekBackward time is greater than 0 sec
+                if(currentPosition - seekBackwardTime >= 0){
+                    // forward song
+                    mPlayer.seekTo(currentPosition - seekBackwardTime);
+                }else{
+                    // backward to starting position
+                    mPlayer.seekTo(0);
+                }
+                if (!playbtn.isEnabled()) {
+                    playbtn.setEnabled(true);
+                }
+            }
+        });
+
+        mPlayer.setOnBufferingUpdateListener(new MediaPlayer.OnBufferingUpdateListener() {
+            @Override
+            public void onBufferingUpdate(MediaPlayer mp, int percent) {
+              /*  final Toast toast = Toast.makeText(ResourceContentItem.this, "Buffering...", Toast.LENGTH_SHORT);
+                toast.show();*/
+                Handler handler = new Handler();
+                handler.postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                      //  toast.cancel();
+                    }
+                }, 500);
+            }
+        });
+
+
     }
 
+
+    public void updateProgressBar() {
+        hdlr.postDelayed(mUpdateTimeTask, 100);
+    }
+
+    private Runnable mUpdateTimeTask = new Runnable() {
+        public void run() {
+            long totalDuration = mPlayer.getDuration();
+            long currentDuration = mPlayer.getCurrentPosition();
+            // Displaying Total Duration time
+
+            // Displaying time completed playing
+
+            // Displaying Total Duration time
+            songTime.setText(""+utils.milliSecondsToTimer(totalDuration));
+            // Displaying time completed playing
+            startTime.setText(""+utils.milliSecondsToTimer(currentDuration));
+
+            // Updating progress bar
+            int progress = (int)(utils.getProgressPercentage(currentDuration, totalDuration));
+            //Log.d("Progress", ""+progress);
+            songPrgs.setProgress(progress);
+
+            // Running this thread after 100 milliseconds
+            hdlr.postDelayed(this, 100);
+        }
+    };
+
     private void initializeIds() {
+        imgLogo= (ImageView) findViewById(R.id.imgLogo);
         backLayout = (LinearLayout) findViewById(R.id.backLayout);
         iv_play = (ImageView) findViewById(R.id.iv_play);
         iv_video_thumbnail = (ImageView) findViewById(R.id.iv_video_thumbnail);
@@ -79,6 +231,9 @@ public class ResourceContentItem extends AppCompatActivity {
         wv_description = (WebView) findViewById(R.id.wv_description);
         wv_description.setWebViewClient(new CustomWebViewClient());
         iv_story = (ImageView) findViewById(R.id.iv_story);
+
+
+
         Typeface faceMedium = Typeface.createFromAsset(activity.getAssets(),
                 "fonts/helvetica-neue-medium.ttf");
         tv_description.setTypeface(faceMedium);
@@ -103,6 +258,8 @@ public class ResourceContentItem extends AppCompatActivity {
             }
         });
 
+        rl_audio = findViewById(R.id.rl_audio);
+        rl_video = findViewById(R.id.rl_video);
 
         try {
 //            wv_description.loadDataWithBaseURL(null, resourceItemContent.getDescription(), "text/html", "utf-8", null);
@@ -142,36 +299,89 @@ public class ResourceContentItem extends AppCompatActivity {
             iv_video_thumbnail.setVisibility(View.GONE);
 
         } else if (resourceItemContent.getType().equalsIgnoreCase("both")) {
-            iv_story.setVisibility(View.VISIBLE);
-            iv_video_thumbnail.setVisibility(View.VISIBLE);
-            iv_play.setVisibility(View.VISIBLE);
 
-            String imgUri, videoUri;
-            try {
-               /* circularProgressBar.setVisibility(View.VISIBLE);
-                circularProgressBar1.setVisibility(View.VISIBLE);
-*/
-
-                imgUri = resourceItemContent.getImage();
-                videoUri = resourceItemContent.getThumbnail_url();
-
-                Picasso.with(activity).load(imgUri)//download URL
-                        .into(iv_story);//imageview
-                Picasso.with(activity).load(videoUri)//download URL
-                        .into(iv_video_thumbnail);//imageview
-
-
-            } catch (Exception e) {
-                e.printStackTrace();
+            String imgUri = resourceItemContent.getImage();
+            if (imgUri != null && !imgUri.equals("")) {
+                Picasso.get().load(imgUri).into(iv_story);
             }
+
+
+            if (resourceItemContent.getAudio_url() != null && !resourceItemContent.getAudio_url().equals("")) {
+                rl_audio.setVisibility(View.VISIBLE);
+                rl_video.setVisibility(View.GONE);
+
+
+                String imageUrl = resourceItemContent.getThumbnail_url();
+                if (imageUrl != null && !imageUrl.equals("")) {
+                    Picasso.get().load(imageUrl).into(imgLogo);
+                }
+
+
+
+
+
+
+
+                progressDialog = new ProgressDialog(this);
+                progressDialog.setMessage("Loading...");
+                progressDialog.setCancelable(false);
+                mPlayer = new MediaPlayer();
+                String url = resourceItemContent.getAudio_url();// your URL here
+
+
+                if (url != null && !url.equals("")) {
+                    mPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
+                    try {
+                        mPlayer.setDataSource(url);
+                        mPlayer.prepareAsync();
+                        mPlayer.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
+                            @Override
+                            public void onPrepared(MediaPlayer mp) {
+                                if (mp.equals(mPlayer)) {
+                                    updateProgressBar();
+                                }
+                                if (progressDialog != null && progressDialog.isShowing())
+                                    progressDialog.dismiss();
+                            }
+                        });
+
+
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+            if (resourceItemContent.getVideo_url() != null && !resourceItemContent.getVideo_url().equals("")) {
+                rl_audio.setVisibility(View.GONE);
+                rl_video.setVisibility(View.VISIBLE);
+
+                iv_story.setVisibility(View.VISIBLE);
+                iv_video_thumbnail.setVisibility(View.VISIBLE);
+                iv_play.setVisibility(View.VISIBLE);
+
+                String videoUri;
+                try {
+
+
+                    videoUri = resourceItemContent.getThumbnail_url();
+                    Picasso.get().load(videoUri)//download URL
+                            .into(iv_video_thumbnail);//imageview
+
+
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+
         } else if (resourceItemContent.getType().equalsIgnoreCase("video")) {
             iv_story.setVisibility(View.GONE);
+            rl_video.setVisibility(View.VISIBLE);
             iv_video_thumbnail.setVisibility(View.VISIBLE);
             iv_play.setVisibility(View.VISIBLE);
             try {
                 String imageUri;
                 imageUri = resourceItemContent.getThumbnail_url();
-                Picasso.with(activity).load(imageUri)//download URL
+                Picasso.get().load(imageUri)//download URL
                         .into(iv_video_thumbnail);//imageview
             } catch (Exception e) {
                 e.printStackTrace();
@@ -184,18 +394,68 @@ public class ResourceContentItem extends AppCompatActivity {
             try {
                 String imageUri;
                 imageUri = resourceItemContent.getImage();
-                Picasso.with(activity).load(imageUri)//download URL
+                Picasso.get().load(imageUri)//download URL
                         .into(iv_story);//imageview
             } catch (Exception e) {
                 e.printStackTrace();
             }
+        } else if (resourceItemContent.getType().equalsIgnoreCase("audio")) {
+            rl_audio.setVisibility(View.VISIBLE);
+            rl_video.setVisibility(View.GONE);
+
+            String imageUrl = resourceItemContent.getThumbnail_url();
+            if (imageUrl != null && !imageUrl.equals("")) {
+                Picasso.get().load(imageUrl).into(imgLogo);
+            }
+
+
+            String imgUri = resourceItemContent.getImage();
+            if (imgUri != null && !imgUri.equals("")) {
+                Picasso.get().load(imgUri).into(iv_story);
+            }
+            progressDialog = new ProgressDialog(this);
+            progressDialog.setMessage("Loading...");
+            progressDialog.setCancelable(false);
+
+            String url = resourceItemContent.getAudio_url();
+            // your URL here
+            if (url != null && !url.equals("")) {
+
+                mPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
+                try {
+                    mPlayer.setDataSource(url);
+                    mPlayer.prepareAsync();
+                    mPlayer.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
+                        @Override
+                        public void onPrepared(MediaPlayer mp) {
+                            if (mp.equals(mPlayer)) {
+                                updateProgressBar();
+                            }
+                            if (progressDialog != null && progressDialog.isShowing())
+                                progressDialog.dismiss();
+                        }
+                    });
+
+
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+
+
+
+            }
+
+
+        } else {
+            rl_audio.setVisibility(View.GONE);
+            rl_video.setVisibility(View.VISIBLE);
         }
 
 
         iv_story.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent i = new Intent(activity, com.mdff.app.activity.ResourceVideoImage.class);
+                Intent i = new Intent(activity, ResourceVideoImage.class);
                 Bundle bundle = new Bundle();
                 i.putExtra("resurceSubItem", (Serializable) resourceItemContent);
                 bundle.putString("video", "image");
@@ -209,7 +469,7 @@ public class ResourceContentItem extends AppCompatActivity {
             @Override
             public void onClick(View view) {
 
-                Intent i = new Intent(activity, com.mdff.app.activity.ResourceVideoImage.class);
+                Intent i = new Intent(activity, ResourceVideoImage.class);
                 Bundle bundle = new Bundle();
                 i.putExtra("resurceSubItem", (Serializable) resourceItemContent);
                 bundle.putString("video", "video");
@@ -218,6 +478,29 @@ public class ResourceContentItem extends AppCompatActivity {
 
             }
         });
+    }
+
+
+    @Override
+    public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+
+    }
+
+    @Override
+    public void onStartTrackingTouch(SeekBar seekBar) {
+        hdlr.removeCallbacks(mUpdateTimeTask);
+    }
+
+    @Override
+    public void onStopTrackingTouch(SeekBar seekBar) {
+        hdlr.removeCallbacks(mUpdateTimeTask);
+        int totalDuration = mPlayer.getDuration();
+        int currentPosition = utils.progressToTimer(seekBar.getProgress(), totalDuration);
+        // forward or backward to certain seconds
+        mPlayer.seekTo(currentPosition);
+
+        // update timer progress again
+        updateProgressBar();
     }
 
     private class CustomWebViewClient extends WebViewClient {
@@ -304,7 +587,7 @@ public class ResourceContentItem extends AppCompatActivity {
                     phoneCall(toUserMobileNo);
 
                 } else {
-//            Toast.makeText(this, "Required permissions are not granted", Toast.LENGTH_LONG).show();
+
                 }
                 break;
 
@@ -326,7 +609,7 @@ public class ResourceContentItem extends AppCompatActivity {
                 callback.onCustomViewHidden();
                 return;
             }
-            try{
+            try {
 
                 mContentView = (RelativeLayout) findViewById(R.id.detail);
 //            mContentView.setBackgroundColor(getResources().getColor(R.color.black));
@@ -344,19 +627,21 @@ public class ResourceContentItem extends AppCompatActivity {
                 mCustomViewContainer.setVisibility(View.VISIBLE);
                 activity.setContentView(mCustomViewContainer);
 
+            } catch (Exception e) {
             }
-            catch (Exception e){}
         }
+
         public void setActivityBackgroundColor(int color) {
             View view = activity.getWindow().getDecorView();
             view.setBackgroundColor(color);
         }
+
         @Override
         public void onHideCustomView() {
             if (mCustomView == null) {
                 return;
             } else {
-                try{
+                try {
                     // Hide the custom view.
 
                     mCustomView.setVisibility(View.GONE);
@@ -365,37 +650,52 @@ public class ResourceContentItem extends AppCompatActivity {
                     mCustomView = null;
 
                     mCustomViewContainer.setVisibility(View.GONE);
-                    mCustomViewContainer=null;
+                    mCustomViewContainer = null;
                     mCustomViewCallback.onCustomViewHidden();
                     // Show the content view.
 //                mContentView.setBackgroundColor(getResources().getColor(R.color.white));
                     mContentView.setVisibility(View.VISIBLE);
                     activity.setContentView(mContentView);
 //                    setActivityBackgroundColor(getResources().getColor(R.color.white));
+                } catch (Exception e) {
                 }
-                catch (Exception e){}
             }
         }
     }
 
     @Override
     public void onBackPressed() {
-        
+
         if (mCustomViewContainer != null)
             try {
                 mWebChromeClient.onHideCustomView();
+            } catch (Exception e) {
             }
-            catch (Exception e){}
         else if (wv_description.canGoBack())
-            try{
+            try {
                 wv_description.goBack();
+            } catch (Exception e) {
             }
-            catch (Exception e){}
         else
-            try{
+            try {
                 super.onBackPressed();
+            } catch (Exception e) {
             }
-            catch (Exception e){}
     }
 
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        try {
+            mPlayer.stop();
+            mPlayer.release();
+            hdlr.removeCallbacks(mUpdateTimeTask);
+        }
+        catch (Exception ex)
+        {
+
+        }
+
+    }
 }

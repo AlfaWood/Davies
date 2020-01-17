@@ -79,7 +79,7 @@ public class ApiController implements AlertMessage.NoticeDialogListenerWithoutVi
                                                 message, activity.getString(R.string.ok),status);
                                         alertMessage.show(activity.getFragmentManager(), "");*/
 
-                                        android.support.v7.app.AlertDialog.Builder builder1 = new android.support.v7.app.AlertDialog.Builder(activity);
+                                        androidx.appcompat.app.AlertDialog.Builder builder1 = new androidx.appcompat.app.AlertDialog.Builder(activity);
                                         builder1.setTitle(status);
                                         builder1.setMessage(message)
                                                 .setCancelable(true)
@@ -96,7 +96,7 @@ public class ApiController implements AlertMessage.NoticeDialogListenerWithoutVi
                                                         activity.finish();
                                                     }
                                                 });
-                                        android.support.v7.app.AlertDialog alert1 = builder1.create();
+                                        androidx.appcompat.app.AlertDialog alert1 = builder1.create();
                                         alert1.show();
 
                                     }

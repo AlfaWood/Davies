@@ -12,8 +12,9 @@ import android.widget.MediaController;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.Toast;
-import android.widget.VideoView;
 
+
+import com.devbrackets.android.exomedia.ui.widget.VideoView;
 import com.mdff.app.R;
 import com.mdff.app.utility.AlertMessage;
 import com.mdff.app.utility.ConnectivityReceiver;
@@ -30,9 +31,9 @@ import java.util.regex.Pattern;
 
 import fr.castorflex.android.circularprogressbar.CircularProgressBar;
 
-public class VideoImageDisplay extends YouTubeBaseActivity implements
-        YouTubePlayer.OnInitializedListener, AlertMessage.NoticeDialogListenerWithoutView {
-    private ImageView fullScreenImageView,close;LinearLayout main_toolbar;
+public class VideoImageDisplay extends YouTubeBaseActivity implements YouTubePlayer.OnInitializedListener, AlertMessage.NoticeDialogListenerWithoutView {
+    private ImageView fullScreenImageView, close;
+    LinearLayout main_toolbar;
     Bundle bundle;
     CircularProgressBar circularProgressBar;
     RelativeLayout imageLayout, videoLayout, youTubevideoLayout;
@@ -44,7 +45,8 @@ public class VideoImageDisplay extends YouTubeBaseActivity implements
     private LinearLayout backLayout;
     private ProgressBar progressBar;
     private int connectStatus;
-       @Override
+
+    @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_video_image_display);
@@ -61,14 +63,12 @@ public class VideoImageDisplay extends YouTubeBaseActivity implements
                     main_toolbar.setVisibility(View.VISIBLE);
 
                     try {
-                         Picasso.with(activity).load(bundle.getString("url"))//download URL
-                         .into(fullScreenImageView);//imageview
+                        Picasso.get().load(bundle.getString("url"))//download URL
+                                .into(fullScreenImageView);//imageview
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
-                }
-
-                else if (bundle.getString("type").equalsIgnoreCase("video")) {
+                } else if (bundle.getString("type").equalsIgnoreCase("video")) {
                     main_toolbar.setVisibility(View.GONE);
                     if (bundle.getString("pf").equalsIgnoreCase("Youtube")) {
                         imageLayout.setVisibility(View.GONE);
@@ -85,10 +85,10 @@ public class VideoImageDisplay extends YouTubeBaseActivity implements
                             mediaControls.setAnchorView(videoView);
                         }
                         // set the media controller for video view
-                        videoView.setMediaController(mediaControls);
+                        //videoView.setMediaController(mediaControls);
                         videoView.setVideoPath(bundle.getString("url"));
                         videoView.start();
-                        progressBar.setVisibility(View.VISIBLE);
+                       // progressBar.setVisibility(View.VISIBLE);
                     }
                 }
             }
@@ -98,7 +98,7 @@ public class VideoImageDisplay extends YouTubeBaseActivity implements
                     getString(R.string.noInternet), getString(R.string.ok), getString(R.string.alert));
             alertMessage.show(activity.getFragmentManager(), "");
         }
-        videoView.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
+        /*videoView.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
             @Override
             public void onPrepared(MediaPlayer mp) {
                 // TODO Auto-generated method stub
@@ -113,7 +113,7 @@ public class VideoImageDisplay extends YouTubeBaseActivity implements
                     }
                 });
             }
-        });
+        });*/
     }
 
     private void linkUIElements() {
@@ -129,7 +129,7 @@ public class VideoImageDisplay extends YouTubeBaseActivity implements
         yt_videoView = (YouTubePlayerView) findViewById(R.id.yt_videoView);
         main_toolbar = (LinearLayout) findViewById(R.id.main_toolbar);
 // implement on completion listener on video view
-        videoView.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
+        /*videoView.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
             @Override
             public void onCompletion(MediaPlayer mp) {
 //                Toast.makeText(getApplicationContext(), "Thank You...!!!", Toast.LENGTH_LONG).show(); // display a toast when an video is completed
@@ -141,7 +141,7 @@ public class VideoImageDisplay extends YouTubeBaseActivity implements
                 Toast.makeText(getApplicationContext(), "Oops An Error Occur While Playing Video...!!!", Toast.LENGTH_LONG).show(); // display a toast when an error is occured while playing an video
                 return false;
             }
-        });
+        });*/
 
         backLayout.setOnClickListener(new View.OnClickListener() {
             @Override

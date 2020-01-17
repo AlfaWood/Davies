@@ -8,11 +8,11 @@ import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.os.SystemClock;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentTransaction;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 import android.text.SpannableStringBuilder;
 import android.text.style.ForegroundColorSpan;
 import android.text.style.StyleSpan;
@@ -63,8 +63,10 @@ public class CustomFeedListAdapter extends RecyclerView.Adapter<RecyclerView.Vie
     private static boolean fragmentExist = false;
     FragmentTransaction fragmentTransaction;// variable to track event time
     private long mLastClickTime = 0;
-    private LikeDislike likeDislike;ApiController apiController;Activity activity;
-    private boolean isLoading=false;
+    private LikeDislike likeDislike;
+    ApiController apiController;
+    Activity activity;
+    private boolean isLoading = false;
     private OnLoadMoreListener onLoadMoreListener;
     private int visibleThreshold = 1;
     private int lastVisibleItem, totalItemCount;
@@ -72,14 +74,14 @@ public class CustomFeedListAdapter extends RecyclerView.Adapter<RecyclerView.Vie
     private final int VIEW_TYPE_LOADING = 1;
 
 
-    public CustomFeedListAdapter(ArrayList<Feed> feedList, Context context, CallAssetFragment CallAssetFragment, FragmentManager fragmentManager, ImageLoader imageLoader,LikeDislike likeDislike,RecyclerView recyclerView) {
+    public CustomFeedListAdapter(ArrayList<Feed> feedList, Context context, CallAssetFragment CallAssetFragment, FragmentManager fragmentManager, ImageLoader imageLoader, LikeDislike likeDislike, RecyclerView recyclerView) {
         this.feedList = feedList;
         this.context = context;
         this.CallAssetFragment = CallAssetFragment;
         this.fragmentManager = fragmentManager;
         this.imageLoader = imageLoader;
-        this.likeDislike=likeDislike;
-        isLoading=false;
+        this.likeDislike = likeDislike;
+        isLoading = false;
         if (imageLoader == null)
             this.imageLoader = AlphaApplication.getInstance().getImageLoader();
 
@@ -122,15 +124,15 @@ public class CustomFeedListAdapter extends RecyclerView.Adapter<RecyclerView.Vie
 
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        RecyclerView.ViewHolder vh=null;
+        RecyclerView.ViewHolder vh = null;
         if (viewType == VIEW_TYPE_ITEM) {
             View view = LayoutInflater.from(context).inflate(R.layout.feed_list_items, parent, false);
-            vh= new ItemViewHolder(view);
+            vh = new ItemViewHolder(view);
         } else if (viewType == VIEW_TYPE_LOADING) {
             View view = LayoutInflater.from(context).inflate(R.layout.progressbar_item, parent, false);
-            vh= new ProgressViewHolder(view);
+            vh = new ProgressViewHolder(view);
         }
-        return  vh;
+        return vh;
 
     }
 
@@ -163,13 +165,11 @@ public class CustomFeedListAdapter extends RecyclerView.Adapter<RecyclerView.Vie
             });
 
 
-                if(feedList.get(pos).getIsLike().equals("0"))
-                {
-                    hol.iv_like.setBackground(context.getResources().getDrawable(R.drawable.dislike));
-                }
-                else{
-                    hol.iv_like.setBackground(context.getResources().getDrawable(R.drawable.likes));
-                }
+            if (feedList.get(pos).getIsLike().equals("0")) {
+                hol.iv_like.setBackground(context.getResources().getDrawable(R.drawable.dislike));
+            } else {
+                hol.iv_like.setBackground(context.getResources().getDrawable(R.drawable.likes));
+            }
 
             if (feedList.get(pos).getSocialPlatformName().equals("Alpha Post")) {
                 hol.like_comment_layout.setVisibility(View.VISIBLE);
@@ -180,47 +180,41 @@ public class CustomFeedListAdapter extends RecyclerView.Adapter<RecyclerView.Vie
 
             }
 //            comment section start
-            if((feedList.get(pos).getNumberOfComments().equals("")?0:Integer.parseInt(feedList.get(pos).getNumberOfComments()))>0)
-            {
+            if ((feedList.get(pos).getNumberOfComments().equals("") ? 0 : Integer.parseInt(feedList.get(pos).getNumberOfComments())) > 0) {
                 hol.comment_layout.setVisibility(View.VISIBLE);
-                if(feedList.get(pos).getAlphaCommented().equals("1"))
-                {
+                if (feedList.get(pos).getAlphaCommented().equals("1")) {
                     hol.alpha_comment_layout.setVisibility(View.VISIBLE);
                     hol.tv_alpha_comment.setText(feedList.get(pos).getAlpha_comment());
-                }
-                else   if(feedList.get(pos).getAlphaCommented().equals("0")) {
+                } else if (feedList.get(pos).getAlphaCommented().equals("0")) {
                     hol.alpha_comment_layout.setVisibility(View.GONE);
                 }
 
                 SpannableStringBuilder spannable;
-                    spannable = new SpannableStringBuilder(feedList.get(pos).getComment1_user() + ": " + feedList.get(pos).getComment1());
-                    spannable.setSpan(new ForegroundColorSpan(context.getResources().getColor(R.color.black)), 0, feedList.get(pos).getComment1_user().length() + 1, SPAN_EXCLUSIVE_INCLUSIVE);
+                spannable = new SpannableStringBuilder(feedList.get(pos).getComment1_user() + ": " + feedList.get(pos).getComment1());
+                spannable.setSpan(new ForegroundColorSpan(context.getResources().getColor(R.color.black)), 0, feedList.get(pos).getComment1_user().length() + 1, SPAN_EXCLUSIVE_INCLUSIVE);
+                spannable.setSpan(
+                        new StyleSpan(BOLD),
+                        0, feedList.get(pos).getComment1_user().length() + 1,
+                        SPAN_EXCLUSIVE_EXCLUSIVE);
+                hol.tv_comment1.setText(spannable);
+                hol.comment_one_layout.setVisibility(View.VISIBLE);
+
+                if (Integer.parseInt(feedList.get(pos).getNumberOfComments()) > 1) {
+                    spannable = null;
+                    spannable = new SpannableStringBuilder(feedList.get(pos).getComment2_user() + ": " + feedList.get(pos).getComment2());
+                    spannable.setSpan(new ForegroundColorSpan(context.getResources().getColor(R.color.black)), 0, feedList.get(pos).getComment2_user().length() + 1, SPAN_EXCLUSIVE_INCLUSIVE);
                     spannable.setSpan(
                             new StyleSpan(BOLD),
-                            0, feedList.get(pos).getComment1_user().length() + 1,
+                            0, feedList.get(pos).getComment2_user().length() + 1,
                             SPAN_EXCLUSIVE_EXCLUSIVE);
-                    hol.tv_comment1.setText(spannable);
-                    hol.comment_one_layout.setVisibility(View.VISIBLE);
-
-                    if (Integer.parseInt(feedList.get(pos).getNumberOfComments()) > 1) {
-                        spannable = null;
-                        spannable = new SpannableStringBuilder(feedList.get(pos).getComment2_user() + ": " + feedList.get(pos).getComment2());
-                        spannable.setSpan(new ForegroundColorSpan(context.getResources().getColor(R.color.black)), 0, feedList.get(pos).getComment2_user().length() + 1, SPAN_EXCLUSIVE_INCLUSIVE);
-                        spannable.setSpan(
-                                new StyleSpan(BOLD),
-                                0, feedList.get(pos).getComment2_user().length() + 1,
-                                SPAN_EXCLUSIVE_EXCLUSIVE);
-                        hol.tv_comment2.setText(spannable);
-                        hol.comment_two_layout.setVisibility(View.VISIBLE);
-                    } else {
-                        hol.comment_two_layout.setVisibility(View.GONE);
-                    }
-            }
-            else{
+                    hol.tv_comment2.setText(spannable);
+                    hol.comment_two_layout.setVisibility(View.VISIBLE);
+                } else {
+                    hol.comment_two_layout.setVisibility(View.GONE);
+                }
+            } else {
                 hol.comment_layout.setVisibility(View.GONE);
             }
-
-
 
 
 //            comment section end
@@ -232,7 +226,37 @@ public class CustomFeedListAdapter extends RecyclerView.Adapter<RecyclerView.Vie
                         3.0f
                 );
                 hol.content_layout.setLayoutParams(param);
-            } else {
+            }
+            else if(feedList.get(pos).getAsset().get(0).getType().equals("audio"))
+            {
+                hol.imv_layout.setVisibility(View.VISIBLE);
+                LinearLayout.LayoutParams param = new LinearLayout.LayoutParams(
+                        0,
+                        ViewGroup.LayoutParams.WRAP_CONTENT,
+                        2.0f
+                );
+                hol.content_layout.setLayoutParams(param);
+                try {
+                    String url = (feedList.get(pos).getAsset().get(0).getType().equals("audio") ? feedList.get(pos).getAsset().get(0).getThumbnail_url() : feedList.get(pos).getAsset().get(0).getUrl());
+
+                    if (feedList.get(pos).getAsset().get(0).getType().equals("audio")) {
+                        hol.iv_play.setVisibility(View.VISIBLE);
+
+                    } else {
+                        hol.iv_play.setVisibility(View.GONE);
+
+                    }
+                    Picasso.get().load(url)//download URL
+                            .into(hol.imv_story);//imageview
+
+//                    hol.imv_story.setImageUrl(url, imageLoader);
+
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+            else
+            {
                 hol.imv_layout.setVisibility(View.VISIBLE);
                 LinearLayout.LayoutParams param = new LinearLayout.LayoutParams(
                         0,
@@ -250,7 +274,7 @@ public class CustomFeedListAdapter extends RecyclerView.Adapter<RecyclerView.Vie
                         hol.iv_play.setVisibility(View.GONE);
 
                     }
-                    Picasso.with(context).load(url)//download URL
+                    Picasso.get().load(url)//download URL
                             .into(hol.imv_story);//imageview
 
 //                    hol.imv_story.setImageUrl(url, imageLoader);
@@ -260,14 +284,16 @@ public class CustomFeedListAdapter extends RecyclerView.Adapter<RecyclerView.Vie
                 }
             }
 
+
+
             hol.iv_likeLayout.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-String likeSt=feedList.get(pos).getIsLike().equals("0")?"1":"0";
-                    @SuppressLint("ResourceType") Animation blink = AnimationUtils.loadAnimation(context.getApplicationContext(),R.animator.blink);
+                    String likeSt = feedList.get(pos).getIsLike().equals("0") ? "1" : "0";
+                    @SuppressLint("ResourceType") Animation blink = AnimationUtils.loadAnimation(context.getApplicationContext(), R.animator.blink);
                     hol.iv_like.startAnimation(blink);
 //                    apiController=new ApiController((Activity) context);
-                   likeDislike.postLikeDislike(feedList.get(pos).getFeed_unique_id(),feedList.get(pos).getFeed_id(),likeSt ,(VolleyCallback) context,pos,"feedList", hol.iv_like,feedList.get(pos),(Activity) context,hol.tv_likescount,hol.iv_likeLayout);
+                    likeDislike.postLikeDislike(feedList.get(pos).getFeed_unique_id(), feedList.get(pos).getFeed_id(), likeSt, (VolleyCallback) context, pos, "feedList", hol.iv_like, feedList.get(pos), (Activity) context, hol.tv_likescount, hol.iv_likeLayout);
 //                    String st=apiController.postLike(feedList.get(pos).getFeed_id(),likeSt, (VolleyCallback) context);
 
 
@@ -285,7 +311,7 @@ String likeSt=feedList.get(pos).getIsLike().equals("0")?"1":"0";
                         return;
                     } else {
                         mLastClickTime = SystemClock.elapsedRealtime();
-                        Resources._ResourceLoadedOnce=false;
+                        Resources._ResourceLoadedOnce = false;
                         Intent intent = new Intent(context, com.mdff.app.activity.FeedDetails.class);
                         intent.putExtra("feeddetails", (Serializable) feedList.get(pos));
                         context.startActivity(intent);
@@ -294,12 +320,10 @@ String likeSt=feedList.get(pos).getIsLike().equals("0")?"1":"0";
 
 
             });
-        }
-        else {
+        } else {
             ((ProgressViewHolder) holder1).progressBar.setIndeterminate(true);
         }
     }
-
 
 
     @Override
@@ -308,25 +332,26 @@ String likeSt=feedList.get(pos).getIsLike().equals("0")?"1":"0";
     }
 
     private class ItemViewHolder extends RecyclerView.ViewHolder {
-        private TextView tv_comment2,tv_comment1,tv_alpha_comment,tv_title, tv_date, tv_socialsite, tv_story, tv_likescount, tv_comment_count, tv_readmore, tv_pipe, tv_pos;
-        private LinearLayout iv_likeLayout,fullLayout,content_layout, content_layout1, like_comment_layout,comment_two_layout,comment_layout,alpha_comment_layout,comment_one_layout;
+        private TextView tv_comment2, tv_comment1, tv_alpha_comment, tv_title, tv_date, tv_socialsite, tv_story, tv_likescount, tv_comment_count, tv_readmore, tv_pipe, tv_pos;
+        private LinearLayout iv_likeLayout, fullLayout, content_layout, content_layout1, like_comment_layout, comment_two_layout, comment_layout, alpha_comment_layout, comment_one_layout;
         private RelativeLayout imv_layout;
         private LinearLayout ll_text;
-        private ImageView imv_story, iv_play;ImageButton iv_like;
+        private ImageView imv_story, iv_play;
+        ImageButton iv_like;
 
         //private NetworkImageView imv_story;
         public ItemViewHolder(View view) {
             super(view);
-            tv_alpha_comment= (TextView) view.findViewById(R.id.tv_alpha_comment);
-            tv_comment1= (TextView) view.findViewById(R.id.tv_comment1);
-            tv_comment2= (TextView) view.findViewById(R.id.tv_comment2);
-            fullLayout=(LinearLayout) view.findViewById(R.id.fullLayout);
-            iv_likeLayout=(LinearLayout) view.findViewById(R.id.iv_likeLayout);
-            comment_layout= (LinearLayout) view.findViewById(R.id.comment_layout);
-            comment_one_layout= (LinearLayout) view.findViewById(R.id.comment_one_layout);
-            comment_two_layout= (LinearLayout) view.findViewById(R.id.comment_two_layout);
-            alpha_comment_layout= (LinearLayout) view.findViewById(R.id.alpha_comment_layout);
-            iv_like= (ImageButton) view.findViewById(R.id.iv_like);
+            tv_alpha_comment = (TextView) view.findViewById(R.id.tv_alpha_comment);
+            tv_comment1 = (TextView) view.findViewById(R.id.tv_comment1);
+            tv_comment2 = (TextView) view.findViewById(R.id.tv_comment2);
+            fullLayout = (LinearLayout) view.findViewById(R.id.fullLayout);
+            iv_likeLayout = (LinearLayout) view.findViewById(R.id.iv_likeLayout);
+            comment_layout = (LinearLayout) view.findViewById(R.id.comment_layout);
+            comment_one_layout = (LinearLayout) view.findViewById(R.id.comment_one_layout);
+            comment_two_layout = (LinearLayout) view.findViewById(R.id.comment_two_layout);
+            alpha_comment_layout = (LinearLayout) view.findViewById(R.id.alpha_comment_layout);
+            iv_like = (ImageButton) view.findViewById(R.id.iv_like);
             tv_title = (TextView) view.findViewById(R.id.tv_title);
             tv_pos = (TextView) view.findViewById(R.id.tv_pos);
             tv_date = (TextView) view.findViewById(R.id.tv_date);
@@ -382,13 +407,14 @@ String likeSt=feedList.get(pos).getIsLike().equals("0")?"1":"0";
         notifyDataSetChanged();
 
     }
+
     @Override
     public int getItemViewType(int position) {
 //        return position;
         return feedList.get(position) == null ? VIEW_TYPE_LOADING : VIEW_TYPE_ITEM;
     }
 
-    private  class ProgressViewHolder extends RecyclerView.ViewHolder {
+    private class ProgressViewHolder extends RecyclerView.ViewHolder {
         public ProgressBar progressBar;
 
         public ProgressViewHolder(View v) {
@@ -396,6 +422,7 @@ String likeSt=feedList.get(pos).getIsLike().equals("0")?"1":"0";
             progressBar = (ProgressBar) v.findViewById(R.id.progressBar1);
         }
     }
+
     public interface CallAssetFragment {
         public void displayFragment(String type, String url, String pf);
 

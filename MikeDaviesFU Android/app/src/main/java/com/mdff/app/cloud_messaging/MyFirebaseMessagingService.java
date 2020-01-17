@@ -1,44 +1,68 @@
 package com.mdff.app.cloud_messaging;
 
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.os.Build;
 import android.util.Log;
 
+import androidx.core.app.NotificationCompat;
+import androidx.core.app.NotificationManagerCompat;
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
+
+
+
+import com.google.firebase.messaging.FirebaseMessagingService;
+import com.google.firebase.messaging.RemoteMessage;
+import com.mdff.app.R;
 import com.mdff.app.activity.MessageDetails;
 import com.mdff.app.model.MessageItems;
 import com.mdff.app.utility.AppUtil;
-import com.google.firebase.messaging.FirebaseMessagingService;
-import com.google.firebase.messaging.RemoteMessage;
 
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.Serializable;
-
-/**
- * Created by Swati.Gupta on 6/19/2018.
- */
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
 
 public class MyFirebaseMessagingService extends FirebaseMessagingService {
-    private static final String TAG = "MyFirebaseMsgService";
-    AppUtil appUtil;
-    MessageItems messageItems;
-    String str_RemoteData;
 
+    private static final String TAG = MyFirebaseMessagingService.class.getSimpleName();
+    private String title, message, click_action;
+    private String CHANNEL_ID = "MyApp";
+    private MessageItems messageItems;
+    AppUtil appUtil;
     @Override
     public void onMessageReceived(RemoteMessage remoteMessage) {
-        System.out.println("------------notification message------//" +remoteMessage.toString());
-        Log.e(TAG, "Data Payload: " + remoteMessage.getData().toString());
         appUtil = new AppUtil(this);
+        // Check if message contains a data payload.
         if (remoteMessage.getData().size() > 0) {
-            System.out.println("------------notification message1------//" + remoteMessage.getData());
-            Log.e(TAG, "Data Payload: " + remoteMessage.getData().toString());
-            try {
-                JSONObject json = new JSONObject(remoteMessage.getData().toString());
-                sendPushNotification(json);
-            } catch (Exception e) {
-                System.out.print(e);
-            }
-        }else{
-            System.out.println("------------notification message2------//" + remoteMessage.getData());
+
+            JSONObject data = new JSONObject(remoteMessage.getData());
+            sendPushNotification(data);
+            Log.e("@#@#@#@#@#@#","********************"+data);
+        }
+
+        // Check if message contains a notification payload.
+        if (remoteMessage.getNotification() != null) {
+            title = remoteMessage.getNotification().getTitle(); //get title
+            message = remoteMessage.getNotification().getBody(); //get message
+            click_action = remoteMessage.getNotification().getClickAction(); //get click_action
+
+            Log.d(TAG, "Notification Title: " + title);
+            Log.d(TAG, "Notification Body: " + message);
+            Log.d(TAG, "Notification click_action: " + click_action);
+
+            Intent intent1 = new Intent("notification");
+            // add data
+            intent1.putExtra("title", title);
+            intent1.putExtra("message", message);
+            LocalBroadcastManager.getInstance(this).sendBroadcast(intent1);
+         //   sendNotification(title, message, click_action);
         }
     }
 
@@ -81,4 +105,18 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
 
     }
 
+    private void createNotificationChannel() {
+        // Create the NotificationChannel, but only on API 26+ because
+        // the NotificationChannel class is new and not in the support library
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            CharSequence name = getString(R.string.app_name);
+            String description = "";
+            int importance = NotificationManager.IMPORTANCE_DEFAULT;
+            NotificationChannel channel = new NotificationChannel(CHANNEL_ID, name, importance);
+            channel.setDescription(description);
+            // Register the channel with the system; you can't change the importance or other notification behaviors after this
+            NotificationManager notificationManager = getSystemService(NotificationManager.class);
+            notificationManager.createNotificationChannel(channel);
+        }
+    }
 }

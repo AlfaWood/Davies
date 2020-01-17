@@ -77,7 +77,7 @@
     <include layout="@layout/back_toolbar"
         android:id="@+id/head"/>
 
-    <android.support.design.widget.CoordinatorLayout
+    <androidx.coordinatorlayout.widget.CoordinatorLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_below="@+id/head"
@@ -104,7 +104,7 @@
             <!--android:layout_weight="1"-->
             <!--tools:layout="@layout/fragment_account_credential" />-->
 
-    </android.support.design.widget.CoordinatorLayout>
+    </androidx.coordinatorlayout.widget.CoordinatorLayout>
 
 
 </RelativeLayout>

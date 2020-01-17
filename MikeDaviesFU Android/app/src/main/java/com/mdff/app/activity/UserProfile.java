@@ -19,10 +19,10 @@ import android.os.Environment;
 import android.os.Handler;
 import android.os.StrictMode;
 import android.provider.MediaStore;
-import android.support.annotation.NonNull;
-import android.support.v4.app.ActivityCompat;
-import android.support.v4.content.FileProvider;
-import android.support.v7.app.AppCompatActivity;
+import androidx.annotation.NonNull;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.FileProvider;
+import androidx.appcompat.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Base64;
 import android.util.Log;
@@ -502,7 +502,7 @@ comeFrom="onActivityResult";
                 startActivity(i);
                 break;
             case R.id.tv_addnewCard:
-                android.support.v7.app.AlertDialog.Builder builder1 = new android.support.v7.app.AlertDialog.Builder(activity);
+                androidx.appcompat.app.AlertDialog.Builder builder1 = new androidx.appcompat.app.AlertDialog.Builder(activity);
                 builder1.setMessage(getString(R.string.ask_changecard))
                         .setCancelable(true)
                         .setPositiveButton(getString(R.string.yes), new DialogInterface.OnClickListener() {
@@ -533,7 +533,7 @@ comeFrom="onActivityResult";
                                 dialog.dismiss();
                             }
                         });
-                android.support.v7.app.AlertDialog alert1 = builder1.create();
+                androidx.appcompat.app.AlertDialog alert1 = builder1.create();
                 alert1.show();
 
 
@@ -546,7 +546,7 @@ comeFrom="onActivityResult";
                 break;
             case R.id.tv_cancelMembership:
 
-android.support.v7.app.AlertDialog.Builder builder = new android.support.v7.app.AlertDialog.Builder(activity);
+androidx.appcompat.app.AlertDialog.Builder builder = new androidx.appcompat.app.AlertDialog.Builder(activity);
                 builder.setMessage(getString(R.string.areYouSureCancelMember))
                         .setCancelable(true)
                         .setPositiveButton(getString(R.string.yes), new DialogInterface.OnClickListener() {
@@ -572,7 +572,7 @@ android.support.v7.app.AlertDialog.Builder builder = new android.support.v7.app.
                                 dialog.dismiss();
                             }
                         });
-                android.support.v7.app.AlertDialog alert = builder.create();
+                androidx.appcompat.app.AlertDialog alert = builder.create();
                 alert.show();
                 break;
 
@@ -832,7 +832,7 @@ android.support.v7.app.AlertDialog.Builder builder = new android.support.v7.app.
 
                                                   } else {
                                                       appUtil.setPrefrence("profile_pic",jsonObject1.getString("profile_pic"));
-                                                      Picasso.with(UserProfile.this).load(jsonObject1.getString("profile_pic"))
+                                                      Picasso.get().load(jsonObject1.getString("profile_pic"))
                                                               .placeholder(R.drawable.user_pic).into(iv_userImage, new Callback() {
                                                           @Override
                                                           public void onSuccess() {
@@ -847,7 +847,7 @@ android.support.v7.app.AlertDialog.Builder builder = new android.support.v7.app.
 
 
                                                           @Override
-                                                          public void onError() {
+                                                          public void onError(Exception ex) {
                                                               getWindow().clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
                                                               // Toast.makeText(activity, "No Image Found", Toast.LENGTH_SHORT).show();
                                                               alertMessage = AlertMessage.newInstance(

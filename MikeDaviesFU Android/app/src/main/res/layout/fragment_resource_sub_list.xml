@@ -124,7 +124,7 @@
             android:background="@color/light_gray" />
 
 
-        <android.support.v4.widget.SwipeRefreshLayout
+        <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
             xmlns:android="http://schemas.android.com/apk/res/android"
             android:id="@+id/swipeContainer"
             android:layout_width="match_parent"
@@ -189,7 +189,7 @@
 
 
         </RelativeLayout>
-        </android.support.v4.widget.SwipeRefreshLayout>
+        </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
         <View
             android:id="@+id/view_bottom"
             android:visibility="gone"

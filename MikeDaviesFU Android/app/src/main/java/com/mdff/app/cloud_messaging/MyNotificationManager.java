@@ -1,7 +1,6 @@
 package com.mdff.app.cloud_messaging;
 
 import android.app.Notification;
-import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
@@ -9,8 +8,9 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.media.RingtoneManager;
-import android.support.v4.app.NotificationCompat;
+import androidx.core.app.NotificationCompat;
 import android.text.Html;
+
 import com.mdff.app.R;
 
 import java.io.IOException;
@@ -77,33 +77,16 @@ public class MyNotificationManager {
         PendingIntent resultPendingIntent =
                 PendingIntent.getActivity(
                         mCtx,
+
                         0,
                         intent,
                         PendingIntent.FLAG_UPDATE_CURRENT
                 );
 
-        //For Oreo and advanced version
-        NotificationManager notificationManager = (NotificationManager) mCtx.getSystemService(Context.NOTIFICATION_SERVICE);
-
-
-        String channelId = "M_D_F_F_ID";
-        String channelName = "Channel MDFFApp";
-        int importance = NotificationManager.IMPORTANCE_HIGH;
-
-
-        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
-            NotificationChannel mChannel = new NotificationChannel(
-                    channelId, channelName, importance);
-
-            assert notificationManager != null;
-            notificationManager.createNotificationChannel(mChannel);
-        }
-
-
-        NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(mCtx, channelId);
+        NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(mCtx);
         Notification notification;
-        mBuilder.setSmallIcon(R.drawable.app_icon_blue);
-        mBuilder.setColor(mCtx.getResources().getColor(R.color.header_bg));
+            mBuilder.setSmallIcon(R.drawable.app_icon_blue);
+            mBuilder.setColor(mCtx.getResources().getColor(R.color.header_bg));
 
         notification = mBuilder
                 .setTicker(title).setWhen(0)
@@ -117,7 +100,7 @@ public class MyNotificationManager {
                 .build();
 
         notification.flags |= Notification.FLAG_AUTO_CANCEL;
-
+        NotificationManager notificationManager = (NotificationManager) mCtx.getSystemService(Context.NOTIFICATION_SERVICE);
         currentNotificationID++;
         int notificationId = currentNotificationID;
         if (notificationId == Integer.MAX_VALUE - 1)

@@ -1,6 +1,6 @@
 package com.mdff.app.app_interface;
 
-import android.support.v4.app.FragmentTransaction;
+import androidx.fragment.app.FragmentTransaction;
 
 import com.mdff.app.model.ResourceItems;
 

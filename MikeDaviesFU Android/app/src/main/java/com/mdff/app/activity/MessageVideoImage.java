@@ -3,7 +3,7 @@ package com.mdff.app.activity;
 import android.app.Activity;
 import android.content.Intent;
 import android.media.MediaPlayer;
-import android.support.v7.app.AppCompatActivity;
+import androidx.appcompat.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.ImageView;
@@ -84,7 +84,7 @@ public class MessageVideoImage extends AppCompatActivity {
                 try {
 
                     circularProgressBar.setVisibility(View.VISIBLE);
-                    Picasso.with(activity)
+                    Picasso.get()
                             .load(data.getAttachment_url())
                             .into(fullScreenImageView, new Callback() {
                                 @Override
@@ -94,7 +94,7 @@ public class MessageVideoImage extends AppCompatActivity {
                                 }
 
                                 @Override
-                                public void onError() {
+                                public void onError(Exception ex) {
                                     Toast.makeText(activity, "No Image Found", Toast.LENGTH_SHORT).show();
                                     circularProgressBar.setVisibility(View.GONE);
 

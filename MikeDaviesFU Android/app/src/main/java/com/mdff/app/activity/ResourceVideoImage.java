@@ -3,7 +3,7 @@ package com.mdff.app.activity;
 import android.app.Activity;
 import android.content.Intent;
 import android.media.MediaPlayer;
-import android.support.v7.app.AppCompatActivity;
+import androidx.appcompat.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.ImageView;
@@ -79,7 +79,7 @@ public class ResourceVideoImage extends AppCompatActivity {
                 main_toolbar.setVisibility(View.VISIBLE);
 
                 try {
-                    Picasso.with(activity).load(resourceItemContent.getImage())
+                    Picasso.get().load(resourceItemContent.getImage())
                             .into(fullScreenImageView);
                 } catch (Exception e) {
                     e.printStackTrace();
@@ -128,7 +128,7 @@ public class ResourceVideoImage extends AppCompatActivity {
                             main_toolbar.setVisibility(View.VISIBLE);
 
                             videoLayout.setVisibility(View.GONE);
-                            Picasso.with(activity)
+                            Picasso.get()
                                     .load(resourceItemContent.getImage())
                                     .into(fullScreenImageView);
 

@@ -19,7 +19,7 @@
         />
 </LinearLayout>
 
-    <android.support.design.widget.CoordinatorLayout
+    <androidx.coordinatorlayout.widget.CoordinatorLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_alignParentLeft="true"
@@ -57,13 +57,14 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent">
 
-                <VideoView
+                <com.devbrackets.android.exomedia.ui.widget.VideoView
                     android:id="@+id/videoView"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:layout_gravity="center">
+                    android:layout_gravity="center"
+                    app:useDefaultControls="true">
 
-                </VideoView>
+                </com.devbrackets.android.exomedia.ui.widget.VideoView>
             </FrameLayout>
 
             <ImageView
@@ -129,7 +130,7 @@
             app:cpb_sweep_speed="1.0" />
 
 
-    </android.support.design.widget.CoordinatorLayout>
+    </androidx.coordinatorlayout.widget.CoordinatorLayout>
 
 
 </RelativeLayout>
